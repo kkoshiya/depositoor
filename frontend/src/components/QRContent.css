@@ -12,11 +12,6 @@
   letter-spacing: -0.01em;
 }
 
-.qr-title span {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
 /* ── QR Frame ── */
 
 .qr-frame {
@@ -30,17 +25,24 @@
   box-shadow: 0 0 0 1px var(--ring);
 }
 
-.qr-glow {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  opacity: 0.06;
-  background: radial-gradient(
-    circle at center,
-    var(--glow-color) 0%,
-    transparent 70%
-  );
-  pointer-events: none;
+/* ── Chain Icons ── */
+
+.chain-icons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chain-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+
+.chain-icon:hover {
+  opacity: 1;
 }
 
 .qr-badge {

@@ -24,8 +24,6 @@ export function WalletDropdown({ wallets, activeId, onSelect, onDelete, onNewAdd
   return (
     <div className="dropdown">
       <button className="dropdown-trigger" onClick={() => setOpen(!open)}>
-        <span className="dropdown-dot" style={{ background: active.chainColor }} />
-        <span className="dropdown-chain">{active.chainName}</span>
         <span className="dropdown-addr">{truncate(active.address)}</span>
         <svg className={`dropdown-chevron ${open ? 'open' : ''}`} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="6 9 12 15 18 9" />
@@ -42,11 +40,7 @@ export function WalletDropdown({ wallets, activeId, onSelect, onDelete, onNewAdd
                 className={`dropdown-item ${w.id === activeId ? 'active' : ''}`}
                 onClick={() => { onSelect(w.id); setOpen(false) }}
               >
-                <span className="dropdown-dot" style={{ background: w.chainColor }} />
-                <div className="dropdown-item-info">
-                  <span className="dropdown-item-addr">{truncate(w.address)}</span>
-                  <span className="dropdown-item-chain">{w.chainName}</span>
-                </div>
+                <span className="dropdown-item-addr">{truncate(w.address)}</span>
                 {wallets.length > 1 && (
                   <button
                     className="dropdown-item-delete"

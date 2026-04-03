@@ -1,13 +1,16 @@
 import { useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import type { StoredWallet } from '../App'
+import type { Session } from '../hooks/useSession'
+import { SUPPORTED_CHAINS } from '../lib/constants'
 import './QRContent.css'
 
 type Props = {
   wallet: StoredWallet
+  session: Session | null
 }
 
-export function QRContent({ wallet }: Props) {
+export function QRContent({ wallet, session }: Props) {
   const [copied, setCopied] = useState(false)
 
   const truncated = `${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`
@@ -20,12 +23,9 @@ export function QRContent({ wallet }: Props) {
 
   return (
     <div className="qr-content">
-      <p className="qr-title">
-        Deposit on <span style={{ color: wallet.chainColor }}>{wallet.chainName}</span>
-      </p>
+      <p className="qr-title">Deposit Address</p>
 
       <div className="qr-frame">
-        <div className="qr-glow" style={{ '--glow-color': wallet.chainColor } as React.CSSProperties} />
         <QRCodeSVG
           value={wallet.address}
           size={260}
@@ -43,6 +43,27 @@ export function QRContent({ wallet }: Props) {
             />
           </svg>
         </div>
+      </div>
+
+      <div className="chain-icons">
+        {SUPPORTED_CHAINS.map(chain => (
+          <div key={chain.id} className="chain-icon" title={chain.name}>
+            <svg width="28" height="28" viewBox="0 0 28 28">
+              <circle cx="14" cy="14" r="14" fill={chain.color} />
+              <text
+                x="14" y="15"
+                textAnchor="middle"
+                dominantBaseline="central"
+                fill="white"
+                fontSize="10"
+                fontWeight="700"
+                fontFamily="var(--font)"
+              >
+                {chain.name[0]}
+              </text>
+            </svg>
+          </div>
+        ))}
       </div>
 
       <div className="qr-details">
@@ -68,14 +89,21 @@ export function QRContent({ wallet }: Props) {
         <div className="detail">
           <div className="detail-text">
             <span className="detail-label">Accepted</span>
-            <span className="detail-value">Any ERC20 on {wallet.chainName}</span>
+            <span className="detail-value">Any ERC20 token</span>
           </div>
         </div>
       </div>
 
       <div className="qr-status">
         <span className="status-pulse" />
-        <span>Listening for deposits...</span>
+        <span>
+          {session?.status === 'detected' ? 'Deposit detected!' :
+           session?.status === 'sweeping' ? 'Sweeping funds...' :
+           session?.status === 'swept' ? 'Funds swept successfully' :
+           session?.status === 'failed' ? 'Sweep failed' :
+           session?.status === 'registering' ? 'Registering...' :
+           'Listening for deposits...'}
+        </span>
       </div>
     </div>
   )

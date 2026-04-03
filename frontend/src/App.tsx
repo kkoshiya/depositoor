@@ -1,31 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import './App.css'
 import { WalletDropdown } from './components/WalletDropdown'
 import { QRContent } from './components/QRContent'
 import { Settings } from './components/Settings'
+import { IMPL_ADDRESS, SUPPORTED_CHAINS } from './lib/constants'
+import type { Chain } from './lib/constants'
+import { useSession } from './hooks/useSession'
 
-export type Chain = {
-  id: number
-  name: string
-  color: string
+export type SignedAuthJson = {
+  address: string
+  chainId: number
+  nonce: number
+  r: string
+  s: string
+  yParity: number
 }
-
-export const CHAINS: Chain[] = [
-  { id: 42161, name: 'Arbitrum', color: '#12AAFF' },
-  { id: 8453, name: 'Base', color: '#0052FF' },
-  { id: 10, name: 'Optimism', color: '#FF0420' },
-]
 
 export type StoredWallet = {
   id: string
   address: string
-  privateKey: string
+  privateKey: `0x${string}`
   createdAt: number
-  chainId: number
-  chainName: string
-  chainColor: string
   destinationAddress: string
+  destinationChainId: number
+  signedAuth: SignedAuthJson
 }
 
 const STORAGE_KEY = 'depositoor_wallets'
@@ -43,41 +42,63 @@ function saveWallets(wallets: StoredWallet[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(wallets))
 }
 
-function createWalletData(destinationAddress: string, chain: Chain): StoredWallet {
+async function createWalletData(destinationAddress: string, destinationChainId: number): Promise<StoredWallet> {
   const privateKey = generatePrivateKey()
   const account = privateKeyToAccount(privateKey)
+  const signedAuth = await account.signAuthorization({
+    contractAddress: IMPL_ADDRESS,
+    chainId: 0,
+    nonce: 0,
+  })
   return {
     id: crypto.randomUUID(),
     address: account.address,
     privateKey,
     createdAt: Date.now(),
-    chainId: chain.id,
-    chainName: chain.name,
-    chainColor: chain.color,
     destinationAddress,
+    destinationChainId,
+    signedAuth: {
+      address: signedAuth.address,
+      chainId: signedAuth.chainId,
+      nonce: signedAuth.nonce,
+      r: signedAuth.r,
+      s: signedAuth.s,
+      yParity: signedAuth.yParity,
+    },
   }
 }
 
 function App() {
-  const [wallets, setWallets] = useState<StoredWallet[]>(() => {
+  const [wallets, setWallets] = useState<StoredWallet[]>(() => loadWallets())
+  const [activeWalletId, setActiveWalletId] = useState<string | null>(() => {
     const loaded = loadWallets()
-    if (loaded.length > 0) return loaded
-    const first = createWalletData('', CHAINS[0])
-    saveWallets([first])
-    return [first]
+    return loaded.length > 0 ? loaded[0].id : null
   })
-
-  const [activeWalletId, setActiveWalletId] = useState(() => wallets[0].id)
   const [showSettings, setShowSettings] = useState(false)
 
-  const activeWallet = wallets.find(w => w.id === activeWalletId)!
-
-  function handleNewAddress() {
-    const wallet = createWalletData(activeWallet.destinationAddress, {
-      id: activeWallet.chainId,
-      name: activeWallet.chainName,
-      color: activeWallet.chainColor,
+  // Create first wallet if none exist
+  useEffect(() => {
+    if (wallets.length > 0) return
+    createWalletData('', SUPPORTED_CHAINS[0].id).then(wallet => {
+      const updated = [wallet]
+      setWallets(updated)
+      saveWallets(updated)
+      setActiveWalletId(wallet.id)
     })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const activeWallet = wallets.find(w => w.id === activeWalletId)
+
+  const { session, error: sessionError } = useSession(
+    activeWallet?.address ?? null,
+    activeWallet?.signedAuth ?? null,
+    activeWallet?.destinationAddress ?? '',
+    activeWallet?.destinationChainId ?? SUPPORTED_CHAINS[0].id,
+  )
+
+  async function handleNewAddress() {
+    const destChainId = activeWallet?.destinationChainId ?? SUPPORTED_CHAINS[0].id
+    const wallet = await createWalletData(activeWallet?.destinationAddress ?? '', destChainId)
     const updated = [wallet, ...wallets]
     setWallets(updated)
     saveWallets(updated)
@@ -87,7 +108,7 @@ function App() {
   function handleSaveSettings(destinationAddress: string, chain: Chain) {
     const updated = wallets.map(w =>
       w.id === activeWalletId
-        ? { ...w, destinationAddress, chainId: chain.id, chainName: chain.name, chainColor: chain.color }
+        ? { ...w, destinationAddress, destinationChainId: chain.id }
         : w
     )
     setWallets(updated)
@@ -110,13 +131,26 @@ function App() {
     setShowSettings(false)
   }
 
+  if (!activeWallet) {
+    return (
+      <div className="app">
+        <div className="main-card">
+          <div className="qr-status">
+            <span className="status-pulse" />
+            <span>Generating wallet...</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="app">
       <div className="main-card">
         <div className="card-header">
           <WalletDropdown
             wallets={wallets}
-            activeId={activeWalletId}
+            activeId={activeWalletId!}
             onSelect={handleSelect}
             onDelete={handleDelete}
             onNewAddress={handleNewAddress}
@@ -135,11 +169,11 @@ function App() {
         {showSettings ? (
           <Settings
             wallet={activeWallet}
-            chains={CHAINS}
+            chains={SUPPORTED_CHAINS}
             onSave={handleSaveSettings}
           />
         ) : (
-          <QRContent wallet={activeWallet} />
+          <QRContent wallet={activeWallet} session={session} />
         )}
       </div>
     </div>

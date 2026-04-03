@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import type { Chain, StoredWallet } from '../App'
+import type { StoredWallet } from '../App'
+import type { Chain } from '../lib/constants'
 import './Settings.css'
 
 type Props = {
@@ -11,7 +12,7 @@ type Props = {
 export function Settings({ wallet, chains, onSave }: Props) {
   const [address, setAddress] = useState(wallet.destinationAddress)
   const [selectedChain, setSelectedChain] = useState<Chain>(
-    chains.find(c => c.id === wallet.chainId) ?? chains[0]
+    chains.find(c => c.id === wallet.destinationChainId) ?? chains[0]
   )
 
   return (
