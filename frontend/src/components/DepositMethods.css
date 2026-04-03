@@ -1,0 +1,95 @@
+.deposit-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.method-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--ring);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+}
+
+.method-row:hover {
+  background: var(--surface-hover, rgba(255, 255, 255, 0.06));
+  border-color: var(--ring-hover);
+}
+
+.method-row--disabled {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: default;
+}
+
+.method-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.method-icon--active {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+}
+
+.method-icon--muted {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+}
+
+.method-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.method-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.method-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.method-chains {
+  display: flex;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.chain-coming-soon {
+  opacity: 0.35;
+}
+
+.method-badge {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px 10px;
+  border-radius: 99px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.method-icon--wallet {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}

@@ -25,24 +25,44 @@
   box-shadow: 0 0 0 1px var(--ring);
 }
 
-/* ── Chain Icons ── */
+/* ── Accepted Row ── */
 
-.chain-icons {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.accepted-row {
+  gap: 12px;
 }
 
-.chain-icon {
+.accepted-row .detail-value {
   display: flex;
   align-items: center;
-  justify-content: center;
-  opacity: 0.85;
-  transition: opacity 0.2s;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
-.chain-icon:hover {
-  opacity: 1;
+.accepted-chains {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.chain-icon-btn {
+  cursor: pointer;
+  border-radius: 3px;
+  transition: transform 0.15s, filter 0.15s;
+}
+
+.chain-icon-btn:hover:not(.coming-soon) {
+  transform: scale(1.15);
+  filter: brightness(1.15);
+}
+
+.chain-icon-btn.coming-soon {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.accepted-chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .qr-badge {
@@ -116,10 +136,11 @@ button.detail:hover {
   font-weight: 500;
 }
 
-.detail-value.mono {
+.detail-value.addr {
   font-family: var(--font-mono);
   font-size: 13px;
   letter-spacing: 0.01em;
+  word-break: break-all;
 }
 
 .detail-action {

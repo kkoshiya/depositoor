@@ -49,16 +49,16 @@
 
 .chain-selector {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .chain-pill {
-  flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 44px;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
   background: var(--surface);
   border: none;
   border-radius: var(--radius);
@@ -82,16 +82,12 @@
   background: color-mix(in srgb, var(--chain-color) 5%, var(--surface));
 }
 
-.chain-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--chain-color);
-  opacity: 0.3;
+.chain-pill svg {
+  opacity: 0.4;
   transition: opacity 0.15s;
 }
 
-.chain-pill.active .chain-dot {
+.chain-pill.active svg {
   opacity: 1;
 }
 

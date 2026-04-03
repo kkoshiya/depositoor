@@ -1,6 +1,6 @@
 .app {
   width: 100%;
-  max-width: 440px;
+  max-width: 500px;
 }
 
 .main-card {
@@ -47,4 +47,32 @@
   color: var(--text-primary);
   background: var(--surface);
   box-shadow: 0 0 0 1px var(--ring-hover);
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex: 1;
+  text-align: center;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  transition: color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+
+.back-btn:hover {
+  color: var(--text-secondary);
+  background: var(--surface);
 }

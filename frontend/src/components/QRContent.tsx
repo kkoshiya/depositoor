@@ -3,17 +3,19 @@ import { QRCodeSVG } from 'qrcode.react'
 import type { StoredWallet } from '../App'
 import type { Session } from '../hooks/useSession'
 import { SUPPORTED_CHAINS } from '../lib/constants'
+import { ChainLogo } from './ChainLogo'
 import './QRContent.css'
 
 type Props = {
   wallet: StoredWallet
   session: Session | null
+  onShowAssets: (chainId?: number) => void
 }
 
-export function QRContent({ wallet, session }: Props) {
+export function QRContent({ wallet, session, onShowAssets }: Props) {
   const [copied, setCopied] = useState(false)
 
-  const truncated = `${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`
+  const truncated = wallet.address
 
   const copyAddress = async () => {
     await navigator.clipboard.writeText(wallet.address)
@@ -45,32 +47,11 @@ export function QRContent({ wallet, session }: Props) {
         </div>
       </div>
 
-      <div className="chain-icons">
-        {SUPPORTED_CHAINS.map(chain => (
-          <div key={chain.id} className="chain-icon" title={chain.name}>
-            <svg width="28" height="28" viewBox="0 0 28 28">
-              <circle cx="14" cy="14" r="14" fill={chain.color} />
-              <text
-                x="14" y="15"
-                textAnchor="middle"
-                dominantBaseline="central"
-                fill="white"
-                fontSize="10"
-                fontWeight="700"
-                fontFamily="var(--font)"
-              >
-                {chain.name[0]}
-              </text>
-            </svg>
-          </div>
-        ))}
-      </div>
-
       <div className="qr-details">
         <button className="detail" onClick={copyAddress} type="button">
           <div className="detail-text">
             <span className="detail-label">Deposit Address</span>
-            <span className="detail-value mono">{truncated}</span>
+            <span className="detail-value addr">{truncated}</span>
           </div>
           <span className={`detail-action ${copied ? 'is-copied' : ''}`}>
             {copied ? (
@@ -86,12 +67,39 @@ export function QRContent({ wallet, session }: Props) {
           </span>
         </button>
 
-        <div className="detail">
+        <button
+          className="detail accepted-row"
+          onClick={() => onShowAssets()}
+          type="button"
+        >
           <div className="detail-text">
             <span className="detail-label">Accepted</span>
-            <span className="detail-value">Any ERC20 token</span>
+            <span className="detail-value">
+              Any ERC-20 on
+              <span className="accepted-chains">
+                {SUPPORTED_CHAINS.map(chain => (
+                  <span
+                    key={chain.id}
+                    className={`chain-icon-btn ${chain.comingSoon ? 'coming-soon' : ''}`}
+                    role="button"
+                    tabIndex={chain.comingSoon ? -1 : 0}
+                    title={chain.comingSoon ? `${chain.name} (coming soon)` : chain.name}
+                    onClick={(e) => {
+                      if (chain.comingSoon) return
+                      e.stopPropagation()
+                      onShowAssets(chain.id)
+                    }}
+                  >
+                    <ChainLogo chain={chain} size={15} />
+                  </span>
+                ))}
+              </span>
+            </span>
           </div>
-        </div>
+          <svg className="accepted-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
       </div>
 
       <div className="qr-status">

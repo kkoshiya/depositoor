@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { StoredWallet } from '../App'
 import type { Chain } from '../lib/constants'
+import { ChainLogo } from './ChainLogo'
 import './Settings.css'
 
 type Props = {
@@ -41,7 +42,7 @@ export function Settings({ wallet, chains, onSave }: Props) {
               onClick={() => setSelectedChain(chain)}
               style={{ '--chain-color': chain.color } as React.CSSProperties}
             >
-              <span className="chain-dot" />
+              <ChainLogo chain={chain} size={16} />
               {chain.name}
             </button>
           ))}

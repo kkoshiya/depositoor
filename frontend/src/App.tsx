@@ -4,9 +4,13 @@ import './App.css'
 import { WalletDropdown } from './components/WalletDropdown'
 import { QRContent } from './components/QRContent'
 import { Settings } from './components/Settings'
+import { DepositMethods } from './components/DepositMethods'
+import { SupportedAssets } from './components/SupportedAssets'
 import { IMPL_ADDRESS, SUPPORTED_CHAINS } from './lib/constants'
 import type { Chain } from './lib/constants'
 import { useSession } from './hooks/useSession'
+
+type View = 'methods' | 'crypto' | 'settings' | 'assets'
 
 export type SignedAuthJson = {
   address: string
@@ -74,7 +78,8 @@ function App() {
     const loaded = loadWallets()
     return loaded.length > 0 ? loaded[0].id : null
   })
-  const [showSettings, setShowSettings] = useState(false)
+  const [view, setView] = useState<View>('methods')
+  const [assetsChainId, setAssetsChainId] = useState<number | undefined>()
 
   // Create first wallet if none exist
   useEffect(() => {
@@ -113,7 +118,7 @@ function App() {
     )
     setWallets(updated)
     saveWallets(updated)
-    setShowSettings(false)
+    setView('crypto')
   }
 
   function handleDelete(id: string) {
@@ -128,7 +133,7 @@ function App() {
 
   function handleSelect(id: string) {
     setActiveWalletId(id)
-    setShowSettings(false)
+    setView('crypto')
   }
 
   if (!activeWallet) {
@@ -148,32 +153,75 @@ function App() {
     <div className="app">
       <div className="main-card">
         <div className="card-header">
-          <WalletDropdown
-            wallets={wallets}
-            activeId={activeWalletId!}
-            onSelect={handleSelect}
-            onDelete={handleDelete}
-            onNewAddress={handleNewAddress}
-          />
-          <button
-            className={`settings-btn ${showSettings ? 'active' : ''}`}
-            onClick={() => setShowSettings(!showSettings)}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
-          </button>
+          {view === 'methods' ? (
+            <span className="card-title">Deposit</span>
+          ) : view === 'crypto' ? (
+            <>
+              <button className="back-btn" onClick={() => setView('methods')} type="button">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 12H5" />
+                  <polyline points="12 19 5 12 12 5" />
+                </svg>
+              </button>
+              <WalletDropdown
+                wallets={wallets}
+                activeId={activeWalletId!}
+                onSelect={handleSelect}
+                onDelete={handleDelete}
+                onNewAddress={handleNewAddress}
+              />
+              <button
+                className="settings-btn"
+                onClick={() => setView('settings')}
+                type="button"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+              </button>
+            </>
+          ) : view === 'settings' ? (
+            <>
+              <button className="back-btn" onClick={() => setView('crypto')} type="button">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 12H5" />
+                  <polyline points="12 19 5 12 12 5" />
+                </svg>
+              </button>
+              <span className="card-title">Settings</span>
+              <div style={{ width: 40 }} />
+            </>
+          ) : (
+            <>
+              <button className="back-btn" onClick={() => setView('crypto')} type="button">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 12H5" />
+                  <polyline points="12 19 5 12 12 5" />
+                </svg>
+              </button>
+              <span className="card-title">Supported Assets</span>
+              <div style={{ width: 40 }} />
+            </>
+          )}
         </div>
 
-        {showSettings ? (
+        {view === 'settings' ? (
           <Settings
             wallet={activeWallet}
-            chains={SUPPORTED_CHAINS}
+            chains={SUPPORTED_CHAINS.filter(c => !c.comingSoon)}
             onSave={handleSaveSettings}
           />
+        ) : view === 'crypto' ? (
+          <QRContent wallet={activeWallet} session={session} onShowAssets={(chainId) => { setAssetsChainId(chainId); setView('assets') }} />
+        ) : view === 'assets' ? (
+          <SupportedAssets initialChainId={assetsChainId} />
         ) : (
-          <QRContent wallet={activeWallet} session={session} />
+          <DepositMethods
+            onSelectCrypto={() => setView('crypto')}
+            destinationChainId={activeWallet.destinationChainId}
+            destinationAddress={activeWallet.destinationAddress || undefined}
+          />
         )}
       </div>
     </div>
