@@ -1,16 +1,17 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
 import {
   discoverProviders,
-  type EIP6963ProviderDetail,
+  type WalletProviderDetail,
   type EIP1193Provider,
-} from '../lib/eip6963'
+} from '../lib/wallets'
+import { createPortoProvider, createCoinbaseSmartWalletProvider } from '../lib/smart-wallets'
 
 interface WalletState {
   address: string | null
   chainId: number | null
   provider: EIP1193Provider | null
-  providers: EIP6963ProviderDetail[]
-  connect: (detail: EIP6963ProviderDetail) => Promise<void>
+  providers: WalletProviderDetail[]
+  connect: (detail: WalletProviderDetail) => Promise<void>
   disconnect: () => void
   switchChain: (chainId: number) => Promise<void>
 }
@@ -24,13 +25,21 @@ export function useWallet() {
 }
 
 export function WalletProvider({ children }: { children: ReactNode }) {
-  const [providers, setProviders] = useState<EIP6963ProviderDetail[]>([])
+  const [providers, setProviders] = useState<WalletProviderDetail[]>([])
   const [provider, setProvider] = useState<EIP1193Provider | null>(null)
   const [address, setAddress] = useState<string | null>(null)
   const [chainId, setChainId] = useState<number | null>(null)
 
   // Discover EIP-6963 providers on mount
   useEffect(() => {
+    // Initialize with static smart wallet providers
+    const smartWallets = [
+      createPortoProvider(),
+      createCoinbaseSmartWalletProvider(),
+    ]
+    setProviders(smartWallets)
+
+    // Discover browser extension providers via EIP-6963
     return discoverProviders((detail) => {
       setProviders((prev) => {
         if (prev.some((p) => p.info.uuid === detail.info.uuid)) return prev
@@ -65,7 +74,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
   }, [provider])
 
-  const connect = useCallback(async (detail: EIP6963ProviderDetail) => {
+  const connect = useCallback(async (detail: WalletProviderDetail) => {
     const accounts = (await detail.provider.request({
       method: 'eth_requestAccounts',
     })) as string[]

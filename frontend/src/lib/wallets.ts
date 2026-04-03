@@ -1,0 +1,54 @@
+// Wallet source discriminator
+export type WalletSource = 'eip6963' | 'porto' | 'coinbase-smart-wallet'
+
+// Provider metadata
+export interface WalletProviderInfo {
+  uuid: string
+  name: string
+  icon: string  // data URI or URL
+  rdns: string  // reverse DNS identifier
+}
+
+// EIP-1193 provider interface
+export interface EIP1193Provider {
+  request(args: { method: string; params?: unknown[] }): Promise<unknown>
+  on(event: string, handler: (...args: unknown[]) => void): void
+  removeListener(event: string, handler: (...args: unknown[]) => void): void
+}
+
+// Generalized wallet provider detail
+export interface WalletProviderDetail {
+  info: WalletProviderInfo
+  provider: EIP1193Provider
+  source: WalletSource
+}
+
+// Internal EIP-6963 event types (used only by discoverProviders)
+interface EIP6963AnnounceDetail {
+  info: WalletProviderInfo
+  provider: EIP1193Provider
+}
+
+declare global {
+  interface WindowEventMap {
+    'eip6963:announceProvider': CustomEvent<EIP6963AnnounceDetail>
+  }
+}
+
+/** Discover all injected EIP-6963 wallet providers. */
+export function discoverProviders(
+  onProvider: (detail: WalletProviderDetail) => void
+): () => void {
+  const handler = (event: CustomEvent<EIP6963AnnounceDetail>) => {
+    onProvider({
+      info: event.detail.info,
+      provider: event.detail.provider,
+      source: 'eip6963',
+    })
+  }
+
+  window.addEventListener('eip6963:announceProvider', handler)
+  window.dispatchEvent(new Event('eip6963:requestProvider'))
+
+  return () => window.removeEventListener('eip6963:announceProvider', handler)
+}

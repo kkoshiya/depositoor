@@ -1,7 +1,13 @@
 .connect-wallet {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
+}
+
+.connect-wallet-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .connect-wallet-label {
