@@ -119,6 +119,24 @@ npm install && npm run dev
 
 Needs `DATABASE_URL`, `RELAYER_PRIVATE_KEY`, `IMPLEMENTATION_ADDRESS`, `UNISWAP_API_KEY` in `backend/.env`.
 
+## Uniswap integration
+
+Every non-USDC deposit flows through the Uniswap Trading API. The sweeper gets a quote, builds the calldata, and executes it through the burner's EIP-7702 delegated account — all in a single batch transaction.
+
+We use the proxy approval flow (`x-permit2-disabled`) so the entire swap is just an ERC-20 approve + call. No Permit2 signatures, no off-chain signing from the burner. Routing hits V2, V3, and V4 pools through Uniswap's optimized pathfinding.
+
+Cross-chain settlements use Uniswap's BRIDGE routing, which hands off to Across Protocol for the actual token delivery on the destination chain. From the sweeper's perspective it's the same API — `POST /quote`, `POST /swap`, execute. The Uniswap API abstracts whether it's a local pool swap or a cross-chain bridge.
+
+```
+POST /quote → POST /swap → approve + execute via ERC-7821 batch
+```
+
+## WalletConnect / Reown integration
+
+The frontend uses Reown AppKit for wallet connectivity across EVM chains and Solana. Users connect through any WalletConnect-compatible wallet — desktop extensions, mobile wallets via QR scan, or smart wallets like Coinbase Smart Wallet and Porto.
+
+WalletConnect sessions let mobile wallet users scan a QR code and send tokens directly to the deposit address without switching apps or manually entering addresses. The AppKit handles chain discovery, wallet detection, and session management across ecosystems.
+
 ## Dependencies
 
-Alloy, Solady (ERC-7821), Uniswap Trading API, Across Protocol (via Uniswap BRIDGE routing), Foundry, Axum, Viem, Wagmi.
+Alloy, Solady (ERC-7821), Uniswap Trading API, Across Protocol (via Uniswap BRIDGE routing), Reown AppKit, Foundry, Axum, Viem, Wagmi.
