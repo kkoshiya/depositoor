@@ -1,4 +1,4 @@
-export const IMPL_ADDRESS = '0x000000000000000000000000000000000000dEaD' as const
+export const IMPL_ADDRESS = '0x33333393A5EdE0c5E257b836034b8ab48078f53c' as const
 
 export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
 
@@ -21,10 +21,6 @@ export const SUPPORTED_CHAINS: Chain[] = [
   { id: 8453,  name: 'Base',      color: '#0052FF', logo: 'base',            logoBg: '#ffffff', cctpDomain: 6, usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' },
   { id: 10,    name: 'Optimism',  color: '#FF0420', logo: 'op-mainnet',      logoScale: 0.6, cctpDomain: 2, usdcAddress: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85' },
   { id: 137,   name: 'Polygon',   color: '#8247E5', logo: 'polygon',        logoBg: '#6C00F7', logoScale: 1.1, usdcAddress: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' },
-  { id: 56,    name: 'BSC',       color: '#F0B90B', logo: 'bnb-smart-chain', logoBg: '#1E2026' },
-  { id: 143,   name: 'Monad',     color: '#836EF9', logo: 'monad',          logoBg: '#6E54FF', logoScale: 0.85 },
-  { id: 999,   name: 'HyperEVM',  color: '#7BF179', logo: 'hyperevm',       logoBg: '#072722', shortLabel: 'HL' },
-  { id: 0,     name: 'Solana',    color: '#9945FF', logo: 'solana',          logoBg: 'linear-gradient(to right, #9945FF, #14F195)' },
 ]
 
 export type PeerMethod = {

@@ -6,3 +6,12 @@ solc = "0.8.28"
 via_ir = true
 optimizer = true
 optimizer_runs = 200
+
+fs_permissions = [{ access = "read-write", path = "./broadcast" }]
+
+[rpc_endpoints]
+ethereum = "${ETH_RPC_URL}"
+arbitrum = "${ARB_RPC_URL}"
+base = "${BASE_RPC_URL}"
+optimism = "${OP_RPC_URL}"
+polygon = "${POLYGON_RPC_URL}"
