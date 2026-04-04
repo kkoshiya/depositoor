@@ -22,6 +22,7 @@ pub async fn run() -> eyre::Result<()> {
     let app = Router::new()
         .route("/sessions", post(sessions::register))
         .route("/sessions/{id}", get(sessions::get_session))
+        .route("/sessions/{id}/refund", post(sessions::refund))
         .route("/sessions/{id}/events", get(sse::session_events))
         .layer(CorsLayer::permissive())
         .with_state(state);

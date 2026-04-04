@@ -23,6 +23,7 @@ pub async fn init_db(pool: &PgPool) -> eyre::Result<()> {
             swap_output_amount TEXT,
             fee_amount        TEXT,
             bridge_amount     TEXT,
+            bridge_tx         TEXT,
             bridge_nonce      TEXT,
             dest_tx           TEXT,
             retry_count       INTEGER NOT NULL DEFAULT 0,
@@ -84,12 +85,23 @@ pub async fn get_session(pool: &PgPool, id: Uuid) -> eyre::Result<Option<Deposit
     Ok(session)
 }
 
+/// Get all burner addresses with pending sessions (for ETH balance polling).
+pub async fn get_pending_burners(pool: &PgPool) -> eyre::Result<Vec<(uuid::Uuid, String)>> {
+    let rows = sqlx::query_as::<_, (uuid::Uuid, String)>(
+        "SELECT id, burner_address FROM sessions WHERE status IN ('pending', 'failed') AND created_at > now() - interval '30 minutes'",
+    )
+    .fetch_all(pool)
+    .await?;
+
+    Ok(rows)
+}
+
 pub async fn get_session_by_address(
     pool: &PgPool,
     burner_address: &str,
 ) -> eyre::Result<Option<DepositSession>> {
     let session = sqlx::query_as::<_, DepositSession>(
-        "SELECT * FROM sessions WHERE burner_address = $1 AND status = 'pending' LIMIT 1",
+        "SELECT * FROM sessions WHERE LOWER(burner_address) = LOWER($1) AND status IN ('pending', 'failed') ORDER BY CASE status WHEN 'pending' THEN 0 ELSE 1 END LIMIT 1",
     )
     .bind(burner_address)
     .fetch_optional(pool)
@@ -116,7 +128,7 @@ pub async fn claim_for_detection(
         .execute(&mut *tx)
         .await?;
 
-    // Update only if still pending
+    // Update if pending or failed (re-deposit to same burner)
     let result = sqlx::query(
         "UPDATE sessions SET
             status = 'detected',
@@ -124,8 +136,14 @@ pub async fn claim_for_detection(
             detected_token = $3,
             detected_amount = $4,
             detected_tx = $5,
+            retry_count = 0,
+            next_retry_at = NULL,
+            error_message = NULL,
+            claimed_by = NULL,
+            claimed_at = NULL,
+            sweep_tx = NULL,
             updated_at = now()
-         WHERE id = $1 AND status = 'pending'",
+         WHERE id = $1 AND status IN ('pending', 'failed')",
     )
     .bind(session_id)
     .bind(source_chain_id)
@@ -231,6 +249,67 @@ pub async fn mark_swept(
     .bind(swap_output_amount)
     .bind(fee_amount)
     .bind(bridge_amount)
+    .execute(pool)
+    .await?;
+
+    sqlx::query("SELECT pg_notify('session_updates', $1::text)")
+        .bind(session_id)
+        .execute(pool)
+        .await?;
+
+    Ok(())
+}
+
+/// Mark a session as bridging after the swap tx landed. Records the swap tx and USDC amount.
+pub async fn mark_bridging(
+    pool: &PgPool,
+    session_id: Uuid,
+    sweep_tx: &str,
+    swap_output_amount: &str,
+    fee_amount: &str,
+    bridge_tx: &str,
+    bridge_amount: &str,
+) -> eyre::Result<()> {
+    sqlx::query(
+        "UPDATE sessions SET
+            status = 'bridging',
+            sweep_tx = $2,
+            swap_output_amount = $3,
+            fee_amount = $4,
+            bridge_tx = $5,
+            bridge_amount = $6,
+            updated_at = now()
+         WHERE id = $1",
+    )
+    .bind(session_id)
+    .bind(sweep_tx)
+    .bind(swap_output_amount)
+    .bind(fee_amount)
+    .bind(bridge_tx)
+    .bind(bridge_amount)
+    .execute(pool)
+    .await?;
+
+    sqlx::query("SELECT pg_notify('session_updates', $1::text)")
+        .bind(session_id)
+        .execute(pool)
+        .await?;
+
+    Ok(())
+}
+
+/// Mark a bridging session as fully swept (bridge confirmed).
+pub async fn mark_bridge_complete(
+    pool: &PgPool,
+    session_id: Uuid,
+) -> eyre::Result<()> {
+    sqlx::query(
+        "UPDATE sessions SET
+            status = 'swept',
+            updated_at = now()
+         WHERE id = $1 AND status = 'bridging'",
+    )
+    .bind(session_id)
     .execute(pool)
     .await?;
 
