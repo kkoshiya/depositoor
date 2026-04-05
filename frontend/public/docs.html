@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#050506',
+            card: '#0a0a0c',
+            surface: '#101012',
+            'surface-hover': '#161618',
+            ring: 'rgba(255, 255, 255, 0.04)',
+            'ring-hover': 'rgba(255, 255, 255, 0.07)',
+            'text-primary': '#fafafa',
+            'text-secondary': '#71717a',
+            'text-muted': '#3f3f46',
+            accent: '#2775CA',
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"IBM Plex Mono"', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <title>depositoor docs</title>
+  <style>
+    /* Grid background */
+    .docs-bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(circle at 50% 30%, black 5%, transparent 50%);
+      -webkit-mask-image: radial-gradient(circle at 50% 30%, black 5%, transparent 50%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Code blocks */
+    .code-block {
+      background-color: #0e0e10;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+      overflow-x: auto;
+    }
+    .code-block pre {
+      padding: 1.25rem;
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.7;
+      font-family: "IBM Plex Mono", monospace;
+    }
+    .code-block .code-header {
+      padding: 0.625rem 1.25rem;
+      font-size: 12px;
+      font-family: "IBM Plex Mono", monospace;
+      color: #71717a;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    /* Material Ocean colors */
+    .kw   { color: #c792ea; }  /* keywords, decorators, props */
+    .fn   { color: #82aaff; }  /* functions */
+    .str  { color: #c3e88d; }  /* strings */
+    .num  { color: #f78c6c; }  /* numbers */
+    .tag  { color: #f07178; }  /* html tags */
+    .comp { color: #ffcb6b; }  /* component names */
+    .op   { color: #89ddff; }  /* operators, brackets, punctuation */
+    .cm   { color: #546e7a; }  /* comments */
+    .ty   { color: #ffcb6b; }  /* types */
+    .var  { color: #eeffff; }  /* variables */
+    .bool { color: #ff5370; }  /* booleans */
+
+    /* Inline code */
+    code:not(pre code) {
+      background-color: #161618;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: "IBM Plex Mono", monospace;
+      color: #c3e88d;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    /* Tables */
+    .docs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .docs-table th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      color: #fafafa;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background-color: #0a0a0c;
+    }
+    .docs-table td {
+      padding: 0.75rem 1rem;
+      color: #a1a1aa;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .docs-table tr:hover td {
+      background-color: #0a0a0c;
+    }
+
+    /* Sidebar active state */
+    .nav-link {
+      display: block;
+      padding: 0.375rem 0.75rem;
+      font-size: 13px;
+      color: #71717a;
+      border-left: 2px solid transparent;
+      transition: all 150ms;
+      text-decoration: none;
+    }
+    .nav-link:hover {
+      color: #fafafa;
+      border-left-color: rgba(255, 255, 255, 0.1);
+    }
+    .nav-link.active {
+      color: #fafafa;
+      border-left-color: #2775CA;
+    }
+    .nav-group-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #3f3f46;
+      padding: 0.375rem 0.75rem;
+      margin-top: 1.25rem;
+    }
+    .nav-group-title:first-child {
+      margin-top: 0;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+
+    /* Section anchors offset for fixed header */
+    .doc-section {
+      scroll-margin-top: 5rem;
+    }
+
+    /* Diagram */
+    .diagram-block {
+      background-color: #0e0e10;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+      padding: 1.5rem 2rem;
+      overflow-x: auto;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #71717a;
+    }
+
+    /* Badge / chip */
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 4px;
+      font-family: "IBM Plex Mono", monospace;
+    }
+    .badge-green  { background: rgba(74,222,128,0.1); color: #4ade80; }
+    .badge-blue   { background: rgba(96,165,250,0.1); color: #60a5fa; }
+    .badge-yellow { background: rgba(250,204,21,0.1); color: #facc15; }
+    .badge-red    { background: rgba(248,113,113,0.1); color: #f87171; }
+    .badge-purple { background: rgba(192,132,252,0.1); color: #c084fc; }
+
+    /* Method badges */
+    .method-post { background: rgba(74,222,128,0.12); color: #4ade80; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 12px; font-weight: 600; font-family: "IBM Plex Mono", monospace; }
+    .method-get  { background: rgba(96,165,250,0.12); color: #60a5fa; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 12px; font-weight: 600; font-family: "IBM Plex Mono", monospace; }
+  </style>
+</head>
+<body class="antialiased bg-bg text-text-primary font-sans">
+  <div class="docs-bg-grid"></div>
+
+  <!-- Header -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-bg/80 backdrop-blur-md border-b border-white/[0.04]">
+    <div class="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="/" class="font-mono text-text-primary text-base font-medium tracking-tight">
+        depositoor
+      </a>
+      <div class="flex items-center gap-6">
+        <a href="/docs.html" class="text-sm font-medium text-text-primary transition-colors">Docs</a>
+        <a href="https://github.com/kkoshiya/depositoor" class="text-text-secondary hover:text-text-primary transition-colors">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12C2 16.42 4.868 20.166 8.839 21.492C9.339 21.584 9.52 21.276 9.52 21.011C9.52 20.771 9.511 20.148 9.506 19.309C6.725 19.913 6.138 17.969 6.138 17.969C5.683 16.815 5.027 16.508 5.027 16.508C4.12 15.888 5.095 15.9 5.095 15.9C6.098 15.97 6.626 16.93 6.626 16.93C7.518 18.459 8.966 18.016 9.544 17.761C9.635 17.106 9.897 16.663 10.187 16.409C7.967 16.156 5.635 15.297 5.635 11.458C5.635 10.366 6.025 9.471 6.657 8.766C6.554 8.513 6.213 7.498 6.755 6.126C6.755 6.126 7.589 5.859 9.502 7.153C10.294 6.933 11.144 6.823 11.992 6.819C12.84 6.823 13.69 6.933 14.483 7.153C16.395 5.859 17.228 6.126 17.228 6.126C17.771 7.498 17.43 8.513 17.328 8.766C17.961 9.471 18.35 10.366 18.35 11.458C18.35 15.308 16.015 16.153 13.788 16.4C14.15 16.713 14.473 17.333 14.473 18.286C14.473 19.65 14.46 20.75 14.46 21.011C14.46 21.279 14.639 21.59 15.147 21.492C19.115 20.163 21.996 16.418 21.996 12C21.996 6.477 17.523 2 12 2Z" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Layout -->
+  <div class="flex pt-16 min-h-screen relative z-10">
+
+    <!-- Sidebar -->
+    <aside class="hidden lg:block w-64 shrink-0 border-r border-white/[0.04] sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto py-6 px-4">
+      <nav id="sidebar-nav">
+        <div class="nav-group-title">Overview</div>
+        <a href="#getting-started" class="nav-link active">Getting Started</a>
+        <a href="#architecture" class="nav-link">Architecture</a>
+        <a href="#supported-chains" class="nav-link">Supported Chains</a>
+
+        <div class="nav-group-title">SDK</div>
+        <a href="#depositoor-provider" class="nav-link">DepositoorProvider</a>
+        <a href="#deposit-widget" class="nav-link">DepositWidget</a>
+        <a href="#use-deposit" class="nav-link">useDepositoor Hook</a>
+
+        <div class="nav-group-title">Backend</div>
+        <a href="#api-reference" class="nav-link">API Reference</a>
+        <a href="#indexer" class="nav-link">Indexer</a>
+        <a href="#sweeper" class="nav-link">Sweeper</a>
+
+        <div class="nav-group-title">Integrations</div>
+        <a href="#uniswap" class="nav-link">Uniswap</a>
+        <a href="#walletconnect" class="nav-link">WalletConnect / Reown</a>
+
+        <div class="nav-group-title">Smart Contract</div>
+        <a href="#contract" class="nav-link">DepositoorDelegate</a>
+        <a href="#deployments" class="nav-link">Deployments</a>
+      </nav>
+    </aside>
+
+    <!-- Content -->
+    <main class="flex-1 min-w-0 max-w-4xl mx-auto px-6 lg:px-12 py-10 pb-24">
+
+      <!-- ================================================================== -->
+      <!-- GETTING STARTED                                                     -->
+      <!-- ================================================================== -->
+      <section id="getting-started" class="doc-section mb-20">
+        <h1 class="text-3xl font-bold tracking-tight mb-3">Getting Started</h1>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-8">
+          depositoor is an EIP-7702 deposit sweeper that accepts any token on any supported chain and settles the equivalent value in USDC at your destination address. Drop the widget into your app with three lines of code.
+        </p>
+
+        <h2 class="text-lg font-semibold mb-4">Installation</h2>
+        <div class="code-block mb-8">
+          <div class="code-header">Terminal</div>
+          <pre><span class="var">npm</span> <span class="str">install</span> <span class="str">@depositoor/react</span></pre>
+        </div>
+
+        <h2 class="text-lg font-semibold mb-4">Quick Start</h2>
+        <div class="code-block mb-6">
+          <div class="code-header">App.tsx</div>
+          <pre><span class="kw">import</span> <span class="op">{</span> <span class="comp">DepositoorProvider</span><span class="op">,</span> <span class="comp">DepositWidget</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">'@depositoor/react'</span>
+
+<span class="kw">export default function</span> <span class="fn">App</span><span class="op">()</span> <span class="op">{</span>
+  <span class="kw">return</span> <span class="op">(</span>
+    <span class="op">&lt;</span><span class="comp">DepositoorProvider</span>
+      <span class="kw">apiUrl</span><span class="op">=</span><span class="str">"https://api.depositoor.xyz"</span>
+      <span class="kw">implementationAddress</span><span class="op">=</span><span class="str">"0x33333393A5EdE0c5E257b836034b8ab48078f53c"</span>
+    <span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="comp">DepositWidget</span>
+        <span class="kw">destinationAddress</span><span class="op">=</span><span class="str">"0x123...abc"</span>
+        <span class="kw">destinationChainId</span><span class="op">={</span><span class="num">8453</span><span class="op">}</span>
+      <span class="op">/&gt;</span>
+    <span class="op">&lt;/</span><span class="comp">DepositoorProvider</span><span class="op">&gt;</span>
+  <span class="op">)</span>
+<span class="op">}</span></pre>
+        </div>
+
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-4">
+          That is the complete integration. The widget handles wallet generation, EIP-7702 authorization signing, session registration, deposit detection, and real-time status updates via SSE. The user sends any token on any supported chain, and USDC arrives at the destination.
+        </p>
+
+        <h2 class="text-lg font-semibold mb-4">How It Works (30 seconds)</h2>
+        <ol class="space-y-3 text-text-secondary text-[15px] leading-relaxed mb-6">
+          <li class="flex gap-3">
+            <span class="text-text-muted font-mono text-sm shrink-0">1.</span>
+            <span>The SDK generates a fresh burner wallet and signs an <strong class="text-text-primary">EIP-7702 authorization</strong> delegating code execution to the DepositoorDelegate contract (<code>chainId=0</code> means valid on all chains).</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-text-muted font-mono text-sm shrink-0">2.</span>
+            <span>A <strong class="text-text-primary">session</strong> is registered with the backend, which begins indexing all supported chains for incoming transfers to that burner address.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-text-muted font-mono text-sm shrink-0">3.</span>
+            <span>The user sends any token (or native ETH) to the burner address on any supported chain. The <strong class="text-text-primary">indexer</strong> detects the deposit in real time via WebSocket block subscriptions.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-text-muted font-mono text-sm shrink-0">4.</span>
+            <span>The <strong class="text-text-primary">sweeper</strong> uses the signed EIP-7702 authorization to execute batched calls from the burner: wrap ETH if needed, swap to USDC via Uniswap, and bridge cross-chain via Across -- all in 1-2 transactions.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-text-muted font-mono text-sm shrink-0">5.</span>
+            <span>USDC settles at the destination address on the destination chain. The SDK receives the final status via SSE and fires the <code>onComplete</code> callback.</span>
+          </li>
+        </ol>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- ARCHITECTURE                                                        -->
+      <!-- ================================================================== -->
+      <section id="architecture" class="doc-section mb-20">
+        <h1 class="text-2xl font-bold tracking-tight mb-3">Architecture</h1>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-6">
+          The system consists of four components: the React SDK (client), the Rust backend (API + indexer + sweeper), the Uniswap Trading API (swap/bridge execution), and the DepositoorDelegate smart contract (ERC-7821 batch executor deployed on all chains).
+        </p>
+
+        <h2 class="text-lg font-semibold mb-4">Process Flow</h2>
+        <div class="diagram-block mb-8">
+<span class="var">user sends token</span>  <span class="op">---&gt;</span>  <span class="var">indexer detects</span>  <span class="op">---&gt;</span>  <span class="var">sweeper executes</span>  <span class="op">---&gt;</span>  <span class="str">USDC at destination</span>
+<span class="cm">     (any chain)         (WS + HTTP)        (EIP-7702 batch)         (any chain)</span>
+        </div>
+
+        <h2 class="text-lg font-semibold mb-4">System Diagram</h2>
+        <div class="diagram-block mb-8">
+<span class="op">+-------------------+</span>        <span class="op">+-------------------+</span>        <span class="op">+-------------------+</span>
+<span class="op">|</span>  <span class="comp">React SDK</span>        <span class="op">|</span>        <span class="op">|</span>  <span class="comp">Rust Backend</span>     <span class="op">|</span>        <span class="op">|</span>  <span class="comp">Smart Contract</span>   <span class="op">|</span>
+<span class="op">|</span>                   <span class="op">|</span>        <span class="op">|</span>                   <span class="op">|</span>        <span class="op">|</span>                   <span class="op">|</span>
+<span class="op">|</span> <span class="var">DepositWidget</span>     <span class="op">|</span>  POST  <span class="op">|</span> <span class="var">API (Axum)</span>       <span class="op">|</span>        <span class="op">|</span> <span class="var">DepositoorDelegate</span><span class="op">|</span>
+<span class="op">|</span> <span class="var">Burner keygen</span>    <span class="op">|--/sessions--&gt;|</span> <span class="var">PostgreSQL</span>       <span class="op">|</span>  7702  <span class="op">|</span> <span class="var">ERC-7821 execute</span> <span class="op">|</span>
+<span class="op">|</span> <span class="var">EIP-7702 auth</span>    <span class="op">|</span>        <span class="op">|</span> <span class="var">Indexer (WS+HTTP)</span><span class="op">|--batch-&gt;|</span> <span class="var">sweep()</span>          <span class="op">|</span>
+<span class="op">|</span> <span class="var">SSE status</span>       <span class="op">|&lt;-events-|</span> <span class="var">Sweeper</span>          <span class="op">|</span>        <span class="op">|</span> <span class="var">receive() ETH</span>    <span class="op">|</span>
+<span class="op">+-------------------+</span>        <span class="op">+-------------------+</span>        <span class="op">+-------------------+</span>
+                                      <span class="op">|</span>
+                               <span class="op">+------+------+</span>
+                               <span class="op">|</span>  <span class="comp">Uniswap</span>    <span class="op">|</span>
+                               <span class="op">|</span>  <span class="var">Trading API</span> <span class="op">|</span>
+                               <span class="op">|</span>  <span class="var">+ Across</span>    <span class="op">|</span>
+                               <span class="op">+-------------+</span>
+        </div>
+
+        <h2 class="text-lg font-semibold mb-4">Session Lifecycle</h2>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-4">
+          Each deposit session transitions through a set of statuses tracked in PostgreSQL and pushed to the client in real time via SSE:
+        </p>
+        <div class="flex flex-wrap items-center gap-2 mb-6 font-mono text-sm">
+          <span class="badge badge-blue">pending</span>
+          <span class="text-text-muted">&rarr;</span>
+          <span class="badge badge-yellow">detected</span>
+          <span class="text-text-muted">&rarr;</span>
+          <span class="badge badge-purple">sweeping</span>
+          <span class="text-text-muted">&rarr;</span>
+          <span class="badge badge-purple">bridging</span>
+          <span class="text-text-muted">&rarr;</span>
+          <span class="badge badge-green">swept</span>
+        </div>
+        <p class="text-text-secondary text-[15px] leading-relaxed">
+          If anything fails, the session moves to <span class="badge badge-red">failed</span> with an error message. Sessions that receive no deposit within 30 minutes are considered <span class="badge badge-red">expired</span>. Failed sessions can be refunded via the <code>POST /sessions/:id/refund</code> endpoint.
+        </p>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- SUPPORTED CHAINS                                                    -->
+      <!-- ================================================================== -->
+      <section id="supported-chains" class="doc-section mb-20">
+        <h1 class="text-2xl font-bold tracking-tight mb-3">Supported Chains</h1>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-6">
+          depositoor supports 5 EVM chains for both deposit (source) and settlement (destination). The user can send tokens on any of these chains, and USDC will settle on whichever destination chain the integrator specifies.
+        </p>
+
+        <div class="overflow-x-auto rounded-lg border border-white/[0.04]">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>Chain</th>
+                <th>Chain ID</th>
+                <th>CCTP Domain</th>
+                <th>USDC Address</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-text-primary font-medium">Ethereum</td>
+                <td><code>1</code></td>
+                <td>0</td>
+                <td><code>0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48</code></td>
+              </tr>
+              <tr>
+                <td class="text-text-primary font-medium">Arbitrum</td>
+                <td><code>42161</code></td>
+                <td>3</td>
+                <td><code>0xaf88d065e77c8cC2239327C5EDb3A432268e5831</code></td>
+              </tr>
+              <tr>
+                <td class="text-text-primary font-medium">Base</td>
+                <td><code>8453</code></td>
+                <td>6</td>
+                <td><code>0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913</code></td>
+              </tr>
+              <tr>
+                <td class="text-text-primary font-medium">Optimism</td>
+                <td><code>10</code></td>
+                <td>2</td>
+                <td><code>0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85</code></td>
+              </tr>
+              <tr>
+                <td class="text-text-primary font-medium">Polygon</td>
+                <td><code>137</code></td>
+                <td>&mdash;</td>
+                <td><code>0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- DEPOSITOOR PROVIDER                                                 -->
+      <!-- ================================================================== -->
+      <section id="depositoor-provider" class="doc-section mb-20">
+        <h1 class="text-2xl font-bold tracking-tight mb-3">DepositoorProvider</h1>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-6">
+          The context provider that must wrap any depositoor components. It supplies the API URL and the implementation (delegate) contract address to all child components via React context.
+        </p>
+
+        <div class="code-block mb-8">
+          <div class="code-header">Usage</div>
+          <pre><span class="kw">import</span> <span class="op">{</span> <span class="comp">DepositoorProvider</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">'@depositoor/react'</span>
+
+<span class="op">&lt;</span><span class="comp">DepositoorProvider</span>
+  <span class="kw">apiUrl</span><span class="op">=</span><span class="str">"https://api.depositoor.xyz"</span>
+  <span class="kw">implementationAddress</span><span class="op">=</span><span class="str">"0x33333393A5EdE0c5E257b836034b8ab48078f53c"</span>
+<span class="op">&gt;</span>
+  <span class="op">{</span><span class="var">children</span><span class="op">}</span>
+<span class="op">&lt;/</span><span class="comp">DepositoorProvider</span><span class="op">&gt;</span></pre>
+        </div>
+
+        <h2 class="text-lg font-semibold mb-4">Props</h2>
+        <div class="overflow-x-auto rounded-lg border border-white/[0.04]">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>Prop</th>
+                <th>Type</th>
+                <th>Required</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>apiUrl</code></td>
+                <td class="font-mono text-xs text-text-muted">string</td>
+                <td class="text-green-400">Yes</td>
+                <td>Base URL of the depositoor backend API</td>
+              </tr>
+              <tr>
+                <td><code>implementationAddress</code></td>
+                <td class="font-mono text-xs text-text-muted">`0x${string}`</td>
+                <td class="text-green-400">Yes</td>
+                <td>Address of the DepositoorDelegate contract. Use <code>0x33333393A5EdE0c5E257b836034b8ab48078f53c</code> for production on all chains.</td>
+              </tr>
+              <tr>
+                <td><code>children</code></td>
+                <td class="font-mono text-xs text-text-muted">ReactNode</td>
+                <td class="text-green-400">Yes</td>
+                <td>Child components that consume the context</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- DEPOSIT WIDGET                                                      -->
+      <!-- ================================================================== -->
+      <section id="deposit-widget" class="doc-section mb-20">
+        <h1 class="text-2xl font-bold tracking-tight mb-3">DepositWidget</h1>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-6">
+          The drop-in deposit UI component. Handles the full flow: burner key generation, EIP-7702 authorization, session creation, QR code display, deposit detection via SSE, and status updates. Must be rendered inside a <code>DepositoorProvider</code>.
+        </p>
+
+        <div class="code-block mb-8">
+          <div class="code-header">Full Example</div>
+          <pre><span class="kw">import</span> <span class="op">{</span> <span class="comp">DepositoorProvider</span><span class="op">,</span> <span class="comp">DepositWidget</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">'@depositoor/react'</span>
+
+<span class="kw">function</span> <span class="fn">PaymentPage</span><span class="op">()</span> <span class="op">{</span>
+  <span class="kw">return</span> <span class="op">(</span>
+    <span class="op">&lt;</span><span class="comp">DepositoorProvider</span>
+      <span class="kw">apiUrl</span><span class="op">=</span><span class="str">"https://api.depositoor.xyz"</span>
+      <span class="kw">implementationAddress</span><span class="op">=</span><span class="str">"0x33333393A5EdE0c5E257b836034b8ab48078f53c"</span>
+    <span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="comp">DepositWidget</span>
+        <span class="kw">destinationAddress</span><span class="op">=</span><span class="str">"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"</span>
+        <span class="kw">destinationChainId</span><span class="op">={</span><span class="num">8453</span><span class="op">}</span>
+        <span class="kw">chains</span><span class="op">={[</span><span class="num">8453</span><span class="op">,</span> <span class="num">42161</span><span class="op">,</span> <span class="num">10</span><span class="op">]}</span>
+        <span class="kw">theme</span><span class="op">=</span><span class="str">"dark"</span>
+        <span class="kw">onStatusChange</span><span class="op">={(</span><span class="var">status</span><span class="op">) =&gt;</span> <span class="var">console</span><span class="op">.</span><span class="fn">log</span><span class="op">(</span><span class="str">'Status:'</span><span class="op">,</span> <span class="var">status</span><span class="op">)}</span>
+        <span class="kw">onComplete</span><span class="op">={(</span><span class="var">txHash</span><span class="op">) =&gt;</span> <span class="var">console</span><span class="op">.</span><span class="fn">log</span><span class="op">(</span><span class="str">'Done:'</span><span class="op">,</span> <span class="var">txHash</span><span class="op">)}</span>
+        <span class="kw">className</span><span class="op">=</span><span class="str">"max-w-md mx-auto"</span>
+      <span class="op">/&gt;</span>
+    <span class="op">&lt;/</span><span class="comp">DepositoorProvider</span><span class="op">&gt;</span>
+  <span class="op">)</span>
+<span class="op">}</span></pre>
+        </div>
+
+        <h2 class="text-lg font-semibold mb-4">Props</h2>
+        <div class="overflow-x-auto rounded-lg border border-white/[0.04]">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>Prop</th>
+                <th>Type</th>
+                <th>Required</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>destinationAddress</code></td>
+                <td class="font-mono text-xs text-text-muted">string</td>
+                <td class="text-green-400">Yes</td>
+                <td>EVM address where USDC will be settled</td>
+              </tr>
+              <tr>
+                <td><code>destinationChainId</code></td>
+                <td class="font-mono text-xs text-text-muted">number</td>
+                <td class="text-green-400">Yes</td>
+                <td>Chain ID for USDC settlement. One of: <code>1</code>, <code>42161</code>, <code>8453</code>, <code>10</code>, <code>137</code></td>
+              </tr>
+              <tr>
+                <td><code>chains</code></td>
+                <td class="font-mono text-xs text-text-muted">number[]</td>
+                <td class="text-text-muted">No</td>
+                <td>Limit which source chains are shown to the user. Defaults to all 5 supported chains.</td>
+              </tr>
+              <tr>
+                <td><code>theme</code></td>
+                <td class="font-mono text-xs text-text-muted">"light" | "dark"</td>
+                <td class="text-text-muted">No</td>
+                <td>Widget color scheme. Defaults to <code>"light"</code>.</td>
+              </tr>
+              <tr>
+                <td><code>onStatusChange</code></td>
+                <td class="font-mono text-xs text-text-muted">(status: SessionStatus) =&gt; void</td>
+                <td class="text-text-muted">No</td>
+                <td>Fires whenever the session status changes. Status values: <code>idle</code>, <code>registering</code>, <code>pending</code>, <code>detected</code>, <code>sweeping</code>, <code>swept</code>, <code>failed</code>, <code>expired</code>.</td>
+              </tr>
+              <tr>
+                <td><code>onComplete</code></td>
+                <td class="font-mono text-xs text-text-muted">(txHash: string) =&gt; void</td>
+                <td class="text-text-muted">No</td>
+                <td>Fires when the sweep/bridge is confirmed and USDC has arrived at the destination. Receives the final transaction hash.</td>
+              </tr>
+              <tr>
+                <td><code>onWalletConnect</code></td>
+                <td class="font-mono text-xs text-text-muted">() =&gt; void</td>
+                <td class="text-text-muted">No</td>
+                <td>Callback when user initiates a WalletConnect connection flow.</td>
+              </tr>
+              <tr>
+                <td><code>onPeerOnramp</code></td>
+                <td class="font-mono text-xs text-text-muted">() =&gt; void</td>
+                <td class="text-text-muted">No</td>
+                <td>Callback when user selects a peer-to-peer onramp method.</td>
+              </tr>
+              <tr>
+                <td><code>className</code></td>
+                <td class="font-mono text-xs text-text-muted">string</td>
+                <td class="text-text-muted">No</td>
+                <td>CSS class passthrough for the widget root element. Useful for sizing and positioning.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 class="text-lg font-semibold mt-8 mb-4">Session Status Values</h2>
+        <div class="overflow-x-auto rounded-lg border border-white/[0.04]">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge-blue">idle</span></td>
+                <td>Widget loaded, no session yet. User is choosing deposit method.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-blue">registering</span></td>
+                <td>Generating burner key and registering session with backend.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-blue">pending</span></td>
+                <td>Session registered. Waiting for user to send tokens to burner address. SSE connection active.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-yellow">detected</span></td>
+                <td>Incoming deposit detected by the indexer. Preparing to sweep.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-purple">sweeping</span></td>
+                <td>Sweeper is executing the swap/bridge transaction(s).</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-green">swept</span></td>
+                <td>USDC has been delivered to the destination address. Terminal success state.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-red">failed</span></td>
+                <td>Sweep failed. The session can be refunded. Check <code>error_message</code> for details.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-red">expired</span></td>
+                <td>No deposit received within the 30-minute TTL.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- useDepositoor HOOK                                                  -->
+      <!-- ================================================================== -->
+      <section id="use-deposit" class="doc-section mb-20">
+        <h1 class="text-2xl font-bold tracking-tight mb-3">useDepositoor Hook</h1>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-6">
+          For advanced integrations where you need direct access to the depositoor context without using the pre-built widget. Returns the API URL and implementation address from the nearest <code>DepositoorProvider</code>.
+        </p>
+
+        <div class="code-block mb-8">
+          <div class="code-header">useDepositoor.ts</div>
+          <pre><span class="kw">import</span> <span class="op">{</span> <span class="fn">useDepositoor</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">'@depositoor/react'</span>
+
+<span class="kw">function</span> <span class="fn">CustomDeposit</span><span class="op">()</span> <span class="op">{</span>
+  <span class="kw">const</span> <span class="op">{</span> <span class="var">apiUrl</span><span class="op">,</span> <span class="var">implementationAddress</span> <span class="op">}</span> <span class="op">=</span> <span class="fn">useDepositoor</span><span class="op">()</span>
+
+  <span class="cm">// Use apiUrl to call session endpoints directly</span>
+  <span class="cm">// Use implementationAddress for EIP-7702 authorization</span>
+
+  <span class="kw">const</span> <span class="fn">createSession</span> <span class="op">=</span> <span class="kw">async</span> <span class="op">()</span> <span class="op">=&gt;</span> <span class="op">{</span>
+    <span class="kw">const</span> <span class="var">res</span> <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetch</span><span class="op">(</span><span class="str">`${apiUrl}/sessions`</span><span class="op">,</span> <span class="op">{</span>
+      <span class="var">method</span><span class="op">:</span> <span class="str">'POST'</span><span class="op">,</span>
+      <span class="var">headers</span><span class="op">:</span> <span class="op">{</span> <span class="str">'Content-Type'</span><span class="op">:</span> <span class="str">'application/json'</span> <span class="op">},</span>
+      <span class="var">body</span><span class="op">:</span> <span class="var">JSON</span><span class="op">.</span><span class="fn">stringify</span><span class="op">({</span>
+        <span class="var">burner_address</span><span class="op">:</span> <span class="var">burnerAddress</span><span class="op">,</span>
+        <span class="var">eip7702_auth</span><span class="op">:</span> <span class="var">signedAuth</span><span class="op">,</span>
+        <span class="var">destination_address</span><span class="op">:</span> <span class="var">destAddress</span><span class="op">,</span>
+        <span class="var">destination_chain</span><span class="op">:</span> <span class="num">8453</span><span class="op">,</span>
+      <span class="op">}),</span>
+    <span class="op">})</span>
+    <span class="kw">return</span> <span class="var">res</span><span class="op">.</span><span class="fn">json</span><span class="op">()</span>
+  <span class="op">}</span>
+
+  <span class="cm">// ...</span>
+<span class="op">}</span></pre>
+        </div>
+
+        <h2 class="text-lg font-semibold mb-4">Return Value</h2>
+        <div class="overflow-x-auto rounded-lg border border-white/[0.04]">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>apiUrl</code></td>
+                <td class="font-mono text-xs text-text-muted">string</td>
+                <td>Backend API base URL from the provider</td>
+              </tr>
+              <tr>
+                <td><code>implementationAddress</code></td>
+                <td class="font-mono text-xs text-text-muted">`0x${string}`</td>
+                <td>DepositoorDelegate contract address for EIP-7702 auth signing</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 class="text-lg font-semibold mt-8 mb-4">EIP-7702 Authorization</h2>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-4">
+          When building a custom integration, you need to generate the EIP-7702 authorization yourself. The authorization delegates the burner EOA's code to the DepositoorDelegate contract, allowing the relayer to call <code>execute()</code> on the burner as if it were the contract.
+        </p>
+        <div class="code-block mb-4">
+          <div class="code-header">EIP-7702 Auth Signing (viem)</div>
+          <pre><span class="kw">import</span> <span class="op">{</span> <span class="fn">generatePrivateKey</span><span class="op">,</span> <span class="fn">privateKeyToAccount</span> <span class="op">}</span> <span class="kw">from</span> <span class="str">'viem/accounts'</span>
+
+<span class="kw">const</span> <span class="var">privateKey</span> <span class="op">=</span> <span class="fn">generatePrivateKey</span><span class="op">()</span>
+<span class="kw">const</span> <span class="var">burner</span> <span class="op">=</span> <span class="fn">privateKeyToAccount</span><span class="op">(</span><span class="var">privateKey</span><span class="op">)</span>
+
+<span class="cm">// chainId: 0 means valid on ALL chains</span>
+<span class="kw">const</span> <span class="var">auth</span> <span class="op">=</span> <span class="kw">await</span> <span class="var">burner</span><span class="op">.</span><span class="fn">signAuthorization</span><span class="op">({</span>
+  <span class="var">contractAddress</span><span class="op">:</span> <span class="var">implementationAddress</span><span class="op">,</span>
+  <span class="var">chainId</span><span class="op">:</span> <span class="num">0</span><span class="op">,</span>  <span class="cm">// wildcard -- works on any chain</span>
+  <span class="var">nonce</span><span class="op">:</span> <span class="num">0</span><span class="op">,</span>
+<span class="op">})</span>
+
+<span class="cm">// auth = { address, chainId, nonce, r, s, yParity }</span></pre>
+        </div>
+        <p class="text-text-secondary text-[15px] leading-relaxed">
+          Setting <code>chainId: 0</code> is critical. It means the user's single signature authorizes sweep execution on <em>any</em> supported chain, so regardless of which chain they deposit on, the relayer can act.
+        </p>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- API REFERENCE                                                       -->
+      <!-- ================================================================== -->
+      <section id="api-reference" class="doc-section mb-20">
+        <h1 class="text-2xl font-bold tracking-tight mb-3">API Reference</h1>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-8">
+          The backend exposes 4 REST/SSE endpoints. Base URL: <code>https://api.depositoor.xyz</code>. All request/response bodies are JSON. CORS is permissive.
+        </p>
+
+        <!-- POST /sessions -->
+        <div class="border border-white/[0.04] rounded-lg overflow-hidden mb-8">
+          <div class="bg-card px-5 py-4 flex items-center gap-3 border-b border-white/[0.04]">
+            <span class="method-post">POST</span>
+            <code class="text-text-primary text-sm">/sessions</code>
+          </div>
+          <div class="px-5 py-5">
+            <p class="text-text-secondary text-[15px] leading-relaxed mb-4">
+              Register a new deposit session. The backend begins indexing all chains for transfers to the burner address.
+            </p>
+
+            <h3 class="text-sm font-semibold mb-3 text-text-primary">Request Body</h3>
+            <div class="code-block mb-5">
+              <pre><span class="op">{</span>
+  <span class="kw">"burner_address"</span><span class="op">:</span> <span class="str">"0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18"</span><span class="op">,</span>
+  <span class="kw">"eip7702_auth"</span><span class="op">:</span> <span class="op">{</span>
+    <span class="kw">"address"</span><span class="op">:</span> <span class="str">"0x33333393A5EdE0c5E257b836034b8ab48078f53c"</span><span class="op">,</span>
+    <span class="kw">"chainId"</span><span class="op">:</span> <span class="num">0</span><span class="op">,</span>
+    <span class="kw">"nonce"</span><span class="op">:</span> <span class="num">0</span><span class="op">,</span>
+    <span class="kw">"r"</span><span class="op">:</span> <span class="str">"0x1234...abcd"</span><span class="op">,</span>
+    <span class="kw">"s"</span><span class="op">:</span> <span class="str">"0xabcd...1234"</span><span class="op">,</span>
+    <span class="kw">"yParity"</span><span class="op">:</span> <span class="num">1</span>
+  <span class="op">},</span>
+  <span class="kw">"destination_address"</span><span class="op">:</span> <span class="str">"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"</span><span class="op">,</span>
+  <span class="kw">"destination_chain"</span><span class="op">:</span> <span class="num">8453</span>
+<span class="op">}</span></pre>
+            </div>
+
+            <h3 class="text-sm font-semibold mb-3 text-text-primary">Response <span class="text-text-muted font-normal">200 OK</span></h3>
+            <div class="code-block">
+              <pre><span class="op">{</span>
+  <span class="kw">"id"</span><span class="op">:</span> <span class="str">"a1b2c3d4-e5f6-7890-abcd-ef1234567890"</span><span class="op">,</span>
+  <span class="kw">"status"</span><span class="op">:</span> <span class="str">"pending"</span><span class="op">,</span>
+  <span class="kw">"expires_at"</span><span class="op">:</span> <span class="num">1714000000</span>
+<span class="op">}</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- GET /sessions/:id -->
+        <div class="border border-white/[0.04] rounded-lg overflow-hidden mb-8">
+          <div class="bg-card px-5 py-4 flex items-center gap-3 border-b border-white/[0.04]">
+            <span class="method-get">GET</span>
+            <code class="text-text-primary text-sm">/sessions/:id</code>
+          </div>
+          <div class="px-5 py-5">
+            <p class="text-text-secondary text-[15px] leading-relaxed mb-4">
+              Retrieve the full session object with all fields. Useful for polling if SSE is not available.
+            </p>
+
+            <h3 class="text-sm font-semibold mb-3 text-text-primary">Response <span class="text-text-muted font-normal">200 OK</span></h3>
+            <div class="code-block">
+              <pre><span class="op">{</span>
+  <span class="kw">"id"</span><span class="op">:</span> <span class="str">"a1b2c3d4-e5f6-7890-abcd-ef1234567890"</span><span class="op">,</span>
+  <span class="kw">"created_at"</span><span class="op">:</span> <span class="str">"2026-04-05T12:00:00Z"</span><span class="op">,</span>
+  <span class="kw">"updated_at"</span><span class="op">:</span> <span class="str">"2026-04-05T12:01:30Z"</span><span class="op">,</span>
+  <span class="kw">"burner_address"</span><span class="op">:</span> <span class="str">"0x742d35Cc..."</span><span class="op">,</span>
+  <span class="kw">"eip7702_auth"</span><span class="op">:</span> <span class="op">{ ... },</span>
+  <span class="kw">"dest_address"</span><span class="op">:</span> <span class="str">"0xd8dA6BF2..."</span><span class="op">,</span>
+  <span class="kw">"dest_chain_id"</span><span class="op">:</span> <span class="num">8453</span><span class="op">,</span>
+  <span class="kw">"dest_cctp_domain"</span><span class="op">:</span> <span class="num">6</span><span class="op">,</span>
+  <span class="kw">"status"</span><span class="op">:</span> <span class="str">"detected"</span><span class="op">,</span>
+  <span class="kw">"source_chain_id"</span><span class="op">:</span> <span class="num">42161</span><span class="op">,</span>
+  <span class="kw">"detected_token"</span><span class="op">:</span> <span class="str">"0xaf88d065e77c8cC2239327C5EDb3A432268e5831"</span><span class="op">,</span>
+  <span class="kw">"detected_amount"</span><span class="op">:</span> <span class="str">"1000000000"</span><span class="op">,</span>
+  <span class="kw">"detected_tx"</span><span class="op">:</span> <span class="str">"0xabc123..."</span><span class="op">,</span>
+  <span class="kw">"sweep_tx"</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span>
+  <span class="kw">"swap_output_amount"</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span>
+  <span class="kw">"fee_amount"</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span>
+  <span class="kw">"bridge_amount"</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span>
+  <span class="kw">"bridge_tx"</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span>
+  <span class="kw">"dest_tx"</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span>
+  <span class="kw">"retry_count"</span><span class="op">:</span> <span class="num">0</span><span class="op">,</span>
+  <span class="kw">"error_message"</span><span class="op">:</span> <span class="kw">null</span>
+<span class="op">}</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- GET /sessions/:id/events -->
+        <div class="border border-white/[0.04] rounded-lg overflow-hidden mb-8">
+          <div class="bg-card px-5 py-4 flex items-center gap-3 border-b border-white/[0.04]">
+            <span class="method-get">GET</span>
+            <code class="text-text-primary text-sm">/sessions/:id/events</code>
+          </div>
+          <div class="px-5 py-5">
+            <p class="text-text-secondary text-[15px] leading-relaxed mb-4">
+              Server-Sent Events (SSE) stream for real-time session updates. Sends the current state immediately on connect, then pushes updates on every status change via PostgreSQL <code>LISTEN/NOTIFY</code>. Keep-alive pings every 15 seconds.
+            </p>
+
+            <h3 class="text-sm font-semibold mb-3 text-text-primary">Event Format</h3>
+            <div class="code-block mb-5">
+              <pre><span class="cm">event: status</span>
+<span class="cm">data: {"id":"a1b2c3d4-...","status":"detected","detected_token":"0xaf88d065...","detected_amount":"1000000000",...}</span>
+
+<span class="cm">event: status</span>
+<span class="cm">data: {"id":"a1b2c3d4-...","status":"sweeping",...}</span>
+
+<span class="cm">event: status</span>
+<span class="cm">data: {"id":"a1b2c3d4-...","status":"swept","sweep_tx":"0xdef456...",...}</span></pre>
+            </div>
+
+            <h3 class="text-sm font-semibold mb-3 text-text-primary">Client Usage</h3>
+            <div class="code-block">
+              <pre><span class="kw">const</span> <span class="var">source</span> <span class="op">=</span> <span class="kw">new</span> <span class="fn">EventSource</span><span class="op">(</span><span class="str">`${apiUrl}/sessions/${sessionId}/events`</span><span class="op">)</span>
+
+<span class="var">source</span><span class="op">.</span><span class="fn">addEventListener</span><span class="op">(</span><span class="str">'status'</span><span class="op">,</span> <span class="op">(</span><span class="var">e</span><span class="op">) =&gt;</span> <span class="op">{</span>
+  <span class="kw">const</span> <span class="var">session</span> <span class="op">=</span> <span class="var">JSON</span><span class="op">.</span><span class="fn">parse</span><span class="op">(</span><span class="var">e</span><span class="op">.</span><span class="var">data</span><span class="op">)</span>
+  <span class="var">console</span><span class="op">.</span><span class="fn">log</span><span class="op">(</span><span class="var">session</span><span class="op">.</span><span class="var">status</span><span class="op">)</span> <span class="cm">// "pending" | "detected" | "sweeping" | ...</span>
+<span class="op">})</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- POST /sessions/:id/refund -->
+        <div class="border border-white/[0.04] rounded-lg overflow-hidden mb-8">
+          <div class="bg-card px-5 py-4 flex items-center gap-3 border-b border-white/[0.04]">
+            <span class="method-post">POST</span>
+            <code class="text-text-primary text-sm">/sessions/:id/refund</code>
+          </div>
+          <div class="px-5 py-5">
+            <p class="text-text-secondary text-[15px] leading-relaxed mb-4">
+              Refund tokens stuck at the burner address back to the user. Uses the stored EIP-7702 authorization to execute a <code>sweep(token, refundAddress)</code> call from the burner. Only works when a token has been detected but the sweep failed.
+            </p>
+
+            <h3 class="text-sm font-semibold mb-3 text-text-primary">Request Body</h3>
+            <div class="code-block mb-5">
+              <pre><span class="op">{</span>
+  <span class="kw">"refund_address"</span><span class="op">:</span> <span class="str">"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"</span><span class="op">,</span>
+  <span class="kw">"rpc_url"</span><span class="op">:</span> <span class="str">"https://arb-mainnet.g.alchemy.com/v2/..."</span>
+<span class="op">}</span></pre>
+            </div>
+
+            <h3 class="text-sm font-semibold mb-3 text-text-primary">Response <span class="text-text-muted font-normal">200 OK</span></h3>
+            <div class="code-block">
+              <pre><span class="op">{</span>
+  <span class="kw">"tx_hash"</span><span class="op">:</span> <span class="str">"0x7891def...456abc"</span><span class="op">,</span>
+  <span class="kw">"refund_address"</span><span class="op">:</span> <span class="str">"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"</span><span class="op">,</span>
+  <span class="kw">"token"</span><span class="op">:</span> <span class="str">"0xaf88d065e77c8cC2239327C5EDb3A432268e5831"</span>
+<span class="op">}</span></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- INDEXER                                                             -->
+      <!-- ================================================================== -->
+      <section id="indexer" class="doc-section mb-20">
+        <h1 class="text-2xl font-bold tracking-tight mb-3">Indexer</h1>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-6">
+          The indexer monitors all supported chains for incoming deposits to burner addresses. It uses a hybrid WebSocket + HTTP polling approach for reliability.
+        </p>
+
+        <h2 class="text-lg font-semibold mb-4">Hybrid WS + HTTP Design</h2>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-4">
+          For each chain, the indexer runs a watcher that follows the chain head:
+        </p>
+        <ol class="space-y-3 text-text-secondary text-[15px] leading-relaxed mb-8">
+          <li class="flex gap-3">
+            <span class="text-text-muted font-mono text-sm shrink-0">1.</span>
+            <span><strong class="text-text-primary">Primary: WebSocket <code>newHeads</code> subscription.</strong> Subscribes to new block headers via a WebSocket RPC connection. For each new block, it fetches <code>Transfer(address,address,uint256)</code> event logs via HTTP RPC.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-text-muted font-mono text-sm shrink-0">2.</span>
+            <span><strong class="text-text-primary">Fallback: HTTP polling.</strong> If the WS connection drops, the indexer falls back to polling <code>eth_blockNumber</code> every 2 seconds and processing the latest block via HTTP. It automatically reconnects WS in the background.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-text-muted font-mono text-sm shrink-0">3.</span>
+            <span><strong class="text-text-primary">Native ETH detection.</strong> In addition to ERC-20 Transfer log scanning, the indexer polls <code>eth_getBalance</code> for all pending burner addresses each block. If a burner has a non-zero ETH balance, it is claimed with the WETH address as the detected token (the sweeper will wrap it).</span>
+          </li>
+        </ol>
+
+        <h2 class="text-lg font-semibold mb-4">Detection Flow</h2>
+        <div class="diagram-block mb-6">
+<span class="var">new block</span> <span class="op">---&gt;</span> <span class="fn">get_logs</span><span class="op">(</span><span class="str">Transfer</span><span class="op">)</span> <span class="op">---&gt;</span> <span class="var">match topic[2]</span> <span class="op">---&gt;</span> <span class="fn">claim_for_detection</span><span class="op">()</span>
+                                    against pending
+                                    session burners
+
+<span class="var">new block</span> <span class="op">---&gt;</span> <span class="fn">eth_getBalance</span><span class="op">(</span><span class="var">burners</span><span class="op">)</span> <span class="op">---&gt;</span> <span class="var">if &gt; 0</span> <span class="op">---&gt;</span> <span class="fn">claim_for_detection</span><span class="op">(</span><span class="str">WETH</span><span class="op">)</span>
+        </div>
+
+        <p class="text-text-secondary text-[15px] leading-relaxed">
+          The <code>claim_for_detection</code> database call uses an atomic update to prevent duplicate processing. Only one indexer instance can claim a session. The session status transitions from <code>pending</code> to <code>detected</code>, recording the source chain ID, token address, amount, and deposit transaction hash.
+        </p>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- SWEEPER                                                             -->
+      <!-- ================================================================== -->
+      <section id="sweeper" class="doc-section mb-20">
+        <h1 class="text-2xl font-bold tracking-tight mb-3">Sweeper</h1>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-6">
+          The sweeper executes deposit sessions once the indexer detects an incoming transfer. It determines the optimal execution path based on the source token and whether the deposit is same-chain or cross-chain.
+        </p>
+
+        <h2 class="text-lg font-semibold mb-4">The 4 Sweep Flows</h2>
+        <div class="overflow-x-auto rounded-lg border border-white/[0.04] mb-8">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>Source Token</th>
+                <th>Destination</th>
+                <th>Transactions</th>
+                <th>Execution</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-text-primary font-medium">USDC</td>
+                <td>Same chain</td>
+                <td><span class="badge badge-green">1 tx</span></td>
+                <td><code>sweep(USDC, dest)</code> -- direct transfer</td>
+              </tr>
+              <tr>
+                <td class="text-text-primary font-medium">Non-USDC ERC-20</td>
+                <td>Same chain</td>
+                <td><span class="badge badge-green">1 tx</span></td>
+                <td><code>approve</code> + Uniswap swap (set <code>swapper=dest</code> so output goes directly to destination)</td>
+              </tr>
+              <tr>
+                <td class="text-text-primary font-medium">USDC</td>
+                <td>Cross-chain</td>
+                <td><span class="badge badge-green">1 tx</span></td>
+                <td><code>approve</code> + Uniswap BRIDGE route (Across Protocol)</td>
+              </tr>
+              <tr>
+                <td class="text-text-primary font-medium">Non-USDC ERC-20</td>
+                <td>Cross-chain</td>
+                <td><span class="badge badge-yellow">2 tx</span></td>
+                <td>TX1: swap to USDC (output stays at burner). TX2: bridge USDC to dest chain.</td>
+              </tr>
+              <tr>
+                <td class="text-text-primary font-medium">Native ETH</td>
+                <td>Any</td>
+                <td><span class="badge badge-blue">+1 call</span></td>
+                <td>Prepend <code>WETH.deposit{value: amount}()</code> then follow the WETH flow above</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 class="text-lg font-semibold mb-4">EIP-7702 Batched Execution</h2>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-4">
+          All calls within a single transaction are batched using the ERC-7821 <code>execute()</code> standard. The relayer sends a Type-4 (EIP-7702) transaction with the stored signed authorization and the batched calldata:
+        </p>
+        <div class="code-block mb-6">
+          <div class="code-header">Batch Structure</div>
+          <pre><span class="cm">// mode = 0x01 (batch mode)</span>
+<span class="cm">// executionData = ABI-encoded array of (address, value, calldata) tuples</span>
+
+<span class="fn">execute</span><span class="op">(</span>
+  <span class="num">0x0100...00</span><span class="op">,</span>   <span class="cm">// mode: batch</span>
+  <span class="fn">abi.encode</span><span class="op">([</span>
+    <span class="op">(</span><span class="var">WETH</span><span class="op">,</span>   <span class="var">amount</span><span class="op">,</span>  <span class="str">WETH.deposit()</span><span class="op">),</span>       <span class="cm">// wrap ETH (if native)</span>
+    <span class="op">(</span><span class="var">token</span><span class="op">,</span>  <span class="num">0</span><span class="op">,</span>       <span class="str">approve(router, amt)</span><span class="op">),</span>  <span class="cm">// approve Uniswap router</span>
+    <span class="op">(</span><span class="var">router</span><span class="op">,</span> <span class="num">0</span><span class="op">,</span>       <span class="str">swap(...)</span><span class="op">),</span>              <span class="cm">// execute swap</span>
+  <span class="op">])</span>
+<span class="op">)</span></pre>
+        </div>
+
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-4">
+          For the cross-chain non-USDC case, two transactions are needed because the bridge call requires knowing the exact USDC amount, which is only known after the swap confirms. The second transaction does not need to re-send the EIP-7702 authorization because the delegation persists on the burner's account until the nonce increments.
+        </p>
+
+        <h2 class="text-lg font-semibold mb-4">The Swapper Trick</h2>
+        <p class="text-text-secondary text-[15px] leading-relaxed">
+          For same-chain swaps, the sweeper sets the <code>swapper</code> parameter in the Uniswap quote to the destination address. This makes Uniswap route the swap output directly to the final recipient in a single transaction, avoiding an extra transfer step. For cross-chain flows, the first swap sets <code>swapper=burner</code> so USDC stays at the burner for the subsequent bridge call.
+        </p>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- UNISWAP INTEGRATION                                                 -->
+      <!-- ================================================================== -->
+      <section id="uniswap" class="doc-section mb-20">
+        <h1 class="text-2xl font-bold tracking-tight mb-3">Uniswap Integration</h1>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-6">
+          depositoor uses the <a href="https://trade-api.gateway.uniswap.org" class="text-accent hover:underline">Uniswap Trading API</a> (v1) for all swap and bridge execution. The integration uses the proxy approval flow (no Permit2) to work within the EIP-7702 delegation model.
+        </p>
+
+        <h2 class="text-lg font-semibold mb-4">Proxy Approval Flow</h2>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-4">
+          Because the burner is an EOA with delegated code (not a contract wallet with Permit2 support), we disable Permit2 and use direct token approvals instead:
+        </p>
+
+        <div class="overflow-x-auto rounded-lg border border-white/[0.04] mb-8">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>Header</th>
+                <th>Value</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>x-permit2-disabled</code></td>
+                <td><code>true</code></td>
+                <td>Disables Permit2 signatures. The API returns a proxy contract address for direct <code>approve</code> + <code>transferFrom</code> flow.</td>
+              </tr>
+              <tr>
+                <td><code>x-universal-router-version</code></td>
+                <td><code>2.0</code></td>
+                <td>Use Universal Router v2 for execution.</td>
+              </tr>
+              <tr>
+                <td><code>x-chained-actions-enabled</code></td>
+                <td><code>true</code></td>
+                <td>Enable cross-chain routing (set only for bridge quotes).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 class="text-lg font-semibold mb-4">API Flow</h2>
+        <ol class="space-y-3 text-text-secondary text-[15px] leading-relaxed mb-8">
+          <li class="flex gap-3">
+            <span class="text-text-muted font-mono text-sm shrink-0">1.</span>
+            <span><strong class="text-text-primary">Quote:</strong> <code>POST /v1/quote</code> with token pair, amount, and <code>slippage_tolerance: 0.5</code>. For bridges, <code>tokenInChainId != tokenOutChainId</code>.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-text-muted font-mono text-sm shrink-0">2.</span>
+            <span><strong class="text-text-primary">Strip Permit2 data:</strong> Remove <code>permitData</code> and <code>permitTransaction</code> from the quote response before sending to <code>/swap</code>.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-text-muted font-mono text-sm shrink-0">3.</span>
+            <span><strong class="text-text-primary">Swap calldata:</strong> <code>POST /v1/swap</code> returns the final transaction (<code>to</code>, <code>data</code>, <code>value</code>). The <code>to</code> address is the router/proxy contract.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-text-muted font-mono text-sm shrink-0">4.</span>
+            <span><strong class="text-text-primary">Execute:</strong> The sweeper batches <code>approve(router, amount)</code> + the swap calldata into a single ERC-7821 execute call.</span>
+          </li>
+        </ol>
+
+        <h2 class="text-lg font-semibold mb-4">BRIDGE Routing</h2>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-4">
+          For cross-chain USDC transfers, the Uniswap API returns a <code>"routing": "BRIDGE"</code> response that uses Across Protocol under the hood. The sweeper validates that the routing type is <code>BRIDGE</code> and rejects any non-bridge responses. Bridge fills typically complete in 2-10 seconds on L2s.
+        </p>
+
+        <div class="code-block mb-4">
+          <div class="code-header">Bridge Quote Example</div>
+          <pre><span class="cm">// Quote for USDC on Arbitrum -> USDC on Base</span>
+<span class="kw">const</span> <span class="var">quote</span> <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetch</span><span class="op">(</span><span class="str">'https://trade-api.gateway.uniswap.org/v1/quote'</span><span class="op">,</span> <span class="op">{</span>
+  <span class="var">method</span><span class="op">:</span> <span class="str">'POST'</span><span class="op">,</span>
+  <span class="var">headers</span><span class="op">:</span> <span class="op">{</span>
+    <span class="str">'x-api-key'</span><span class="op">:</span> <span class="var">API_KEY</span><span class="op">,</span>
+    <span class="str">'x-permit2-disabled'</span><span class="op">:</span> <span class="str">'true'</span><span class="op">,</span>
+    <span class="str">'x-chained-actions-enabled'</span><span class="op">:</span> <span class="str">'true'</span><span class="op">,</span>
+  <span class="op">},</span>
+  <span class="var">body</span><span class="op">:</span> <span class="var">JSON</span><span class="op">.</span><span class="fn">stringify</span><span class="op">({</span>
+    <span class="var">swapper</span><span class="op">:</span> <span class="var">destinationAddress</span><span class="op">,</span>  <span class="cm">// output goes here on dest chain</span>
+    <span class="var">tokenIn</span><span class="op">:</span> <span class="str">'0xaf88d065...'</span><span class="op">,</span>    <span class="cm">// USDC on Arbitrum</span>
+    <span class="var">tokenOut</span><span class="op">:</span> <span class="str">'0x833589fC...'</span><span class="op">,</span>   <span class="cm">// USDC on Base</span>
+    <span class="var">tokenInChainId</span><span class="op">:</span> <span class="str">'42161'</span><span class="op">,</span>
+    <span class="var">tokenOutChainId</span><span class="op">:</span> <span class="str">'8453'</span><span class="op">,</span>
+    <span class="var">amount</span><span class="op">:</span> <span class="str">'1000000000'</span><span class="op">,</span>
+    <span class="var">type</span><span class="op">:</span> <span class="str">'EXACT_INPUT'</span><span class="op">,</span>
+  <span class="op">})</span>
+<span class="op">})</span>
+<span class="cm">// response.routing === "BRIDGE"</span></pre>
+        </div>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- WALLETCONNECT / REOWN                                               -->
+      <!-- ================================================================== -->
+      <section id="walletconnect" class="doc-section mb-20">
+        <h1 class="text-2xl font-bold tracking-tight mb-3">WalletConnect / Reown</h1>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-6">
+          The depositoor widget includes a WalletConnect integration via Reown's AppKit. Users can connect their existing wallet (MetaMask, Rainbow, Coinbase Wallet, etc.) and send tokens directly to the burner address from the connected wallet.
+        </p>
+
+        <h2 class="text-lg font-semibold mb-4">How It Works</h2>
+        <ol class="space-y-3 text-text-secondary text-[15px] leading-relaxed mb-8">
+          <li class="flex gap-3">
+            <span class="text-text-muted font-mono text-sm shrink-0">1.</span>
+            <span>User clicks "Connect Wallet" in the widget, which opens the Reown AppKit modal with a QR code (for mobile wallets) or direct connection (for browser extensions).</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-text-muted font-mono text-sm shrink-0">2.</span>
+            <span>Once connected, the widget can request a <code>sendTransaction</code> to transfer the selected token to the burner address on the chosen source chain.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="text-text-muted font-mono text-sm shrink-0">3.</span>
+            <span>The indexer detects the incoming transfer, and the rest of the flow continues as usual: sweep, bridge, settle.</span>
+          </li>
+        </ol>
+
+        <h2 class="text-lg font-semibold mb-4">Multi-Chain Support</h2>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-4">
+          The AppKit integration supports all 5 chains. The user selects which chain to send from in the widget UI, and the WalletConnect session is configured for that chain. If the user's wallet is on a different chain, it will prompt a chain switch before the transfer.
+        </p>
+
+        <h2 class="text-lg font-semibold mb-4">QR Code Flow (Mobile)</h2>
+        <p class="text-text-secondary text-[15px] leading-relaxed">
+          For mobile users, the widget displays a QR code that opens their wallet app. The QR code is generated using the <code>cuer</code> library for the burner address itself (for simple transfers) or using the WalletConnect pairing URI (for wallet-assisted transfers). This allows users to scan and send from any mobile wallet without installing browser extensions.
+        </p>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- SMART CONTRACT                                                      -->
+      <!-- ================================================================== -->
+      <section id="contract" class="doc-section mb-20">
+        <h1 class="text-2xl font-bold tracking-tight mb-3">DepositoorDelegate</h1>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-6">
+          The core smart contract. An ERC-7821 minimal batch executor that gets delegated to via EIP-7702. When a user signs an EIP-7702 authorization, their EOA temporarily "becomes" this contract, allowing the relayer to execute arbitrary batched calls from the user's address.
+        </p>
+
+        <div class="code-block mb-8">
+          <div class="code-header">DepositoorDelegate.sol</div>
+          <pre><span class="cm">// SPDX-License-Identifier: MIT</span>
+<span class="kw">pragma solidity</span> <span class="str">^0.8.28</span><span class="op">;</span>
+
+<span class="kw">import</span> <span class="op">{</span><span class="ty">ERC7821</span><span class="op">}</span> <span class="kw">from</span> <span class="str">"solady/accounts/ERC7821.sol"</span><span class="op">;</span>
+
+<span class="kw">interface</span> <span class="ty">IERC20</span> <span class="op">{</span>
+    <span class="kw">function</span> <span class="fn">balanceOf</span><span class="op">(</span><span class="ty">address</span><span class="op">)</span> <span class="kw">external</span> <span class="kw">view</span> <span class="kw">returns</span> <span class="op">(</span><span class="ty">uint256</span><span class="op">);</span>
+    <span class="kw">function</span> <span class="fn">transfer</span><span class="op">(</span><span class="ty">address</span><span class="op">,</span> <span class="ty">uint256</span><span class="op">)</span> <span class="kw">external</span> <span class="kw">returns</span> <span class="op">(</span><span class="ty">bool</span><span class="op">);</span>
+    <span class="kw">function</span> <span class="fn">approve</span><span class="op">(</span><span class="ty">address</span><span class="op">,</span> <span class="ty">uint256</span><span class="op">)</span> <span class="kw">external</span> <span class="kw">returns</span> <span class="op">(</span><span class="ty">bool</span><span class="op">);</span>
+<span class="op">}</span>
+
+<span class="kw">contract</span> <span class="ty">DepositoorDelegate</span> <span class="kw">is</span> <span class="ty">ERC7821</span> <span class="op">{</span>
+    <span class="ty">address</span> <span class="kw">public</span> <span class="kw">immutable</span> <span class="var">weth</span><span class="op">;</span>
+    <span class="ty">address</span> <span class="kw">public</span> <span class="kw">immutable</span> <span class="var">keeper</span><span class="op">;</span>
+
+    <span class="kw">constructor</span><span class="op">(</span><span class="ty">address</span> <span class="var">_weth</span><span class="op">,</span> <span class="ty">address</span> <span class="var">_keeper</span><span class="op">)</span> <span class="op">{</span>
+        <span class="var">weth</span> <span class="op">=</span> <span class="var">_weth</span><span class="op">;</span>
+        <span class="var">keeper</span> <span class="op">=</span> <span class="var">_keeper</span><span class="op">;</span>
+    <span class="op">}</span>
+
+    <span class="cm">/// @notice Sweep full balance of a token to a recipient.</span>
+    <span class="kw">function</span> <span class="fn">sweep</span><span class="op">(</span><span class="ty">address</span> <span class="var">token</span><span class="op">,</span> <span class="ty">address</span> <span class="var">to</span><span class="op">)</span> <span class="kw">external</span> <span class="op">{</span>
+        <span class="fn">require</span><span class="op">(</span><span class="var">msg.sender</span> <span class="op">==</span> <span class="var">keeper</span> <span class="op">||</span> <span class="var">msg.sender</span> <span class="op">==</span> <span class="kw">address</span><span class="op">(</span><span class="kw">this</span><span class="op">),</span> <span class="str">"unauthorized"</span><span class="op">);</span>
+        <span class="ty">uint256</span> <span class="var">bal</span> <span class="op">=</span> <span class="ty">IERC20</span><span class="op">(</span><span class="var">token</span><span class="op">).</span><span class="fn">balanceOf</span><span class="op">(</span><span class="kw">address</span><span class="op">(</span><span class="kw">this</span><span class="op">));</span>
+        <span class="kw">if</span> <span class="op">(</span><span class="var">bal</span> <span class="op">&gt;</span> <span class="num">0</span><span class="op">)</span> <span class="op">{</span>
+            <span class="fn">require</span><span class="op">(</span><span class="ty">IERC20</span><span class="op">(</span><span class="var">token</span><span class="op">).</span><span class="fn">transfer</span><span class="op">(</span><span class="var">to</span><span class="op">,</span> <span class="var">bal</span><span class="op">),</span> <span class="str">"transfer failed"</span><span class="op">);</span>
+        <span class="op">}</span>
+    <span class="op">}</span>
+
+    <span class="kw">function</span> <span class="fn">_execute</span><span class="op">(</span>
+        <span class="ty">bytes32</span><span class="op">,</span>
+        <span class="ty">bytes</span> <span class="kw">calldata</span><span class="op">,</span>
+        <span class="ty">Call[]</span> <span class="kw">calldata</span> <span class="var">calls</span><span class="op">,</span>
+        <span class="ty">bytes</span> <span class="kw">calldata</span> <span class="var">opData</span>
+    <span class="op">)</span> <span class="kw">internal</span> <span class="kw">virtual</span> <span class="kw">override</span> <span class="op">{</span>
+        <span class="kw">if</span> <span class="op">(</span><span class="var">opData</span><span class="op">.</span><span class="var">length</span> <span class="op">==</span> <span class="num">0</span><span class="op">)</span> <span class="op">{</span>
+            <span class="fn">require</span><span class="op">(</span>
+                <span class="var">msg.sender</span> <span class="op">==</span> <span class="var">keeper</span> <span class="op">||</span> <span class="var">msg.sender</span> <span class="op">==</span> <span class="kw">address</span><span class="op">(</span><span class="kw">this</span><span class="op">),</span>
+                <span class="str">"unauthorized"</span>
+            <span class="op">);</span>
+            <span class="fn">_execute</span><span class="op">(</span><span class="var">calls</span><span class="op">,</span> <span class="ty">bytes32</span><span class="op">(</span><span class="num">0</span><span class="op">));</span>
+            <span class="kw">return</span><span class="op">;</span>
+        <span class="op">}</span>
+        <span class="kw">revert</span><span class="op">(</span><span class="str">"opData not supported"</span><span class="op">);</span>
+    <span class="op">}</span>
+
+    <span class="kw">receive</span><span class="op">()</span> <span class="kw">external</span> <span class="kw">payable</span> <span class="kw">override</span> <span class="op">{</span>
+        <span class="op">(</span><span class="ty">bool</span> <span class="var">success</span><span class="op">,)</span> <span class="op">=</span> <span class="var">weth</span><span class="op">.</span><span class="fn">call</span><span class="op">{</span><span class="var">value</span><span class="op">:</span> <span class="var">msg.value</span><span class="op">}(</span><span class="str">""</span><span class="op">);</span>
+        <span class="fn">require</span><span class="op">(</span><span class="var">success</span><span class="op">,</span> <span class="str">"WETH wrap failed"</span><span class="op">);</span>
+    <span class="op">}</span>
+<span class="op">}</span></pre>
+        </div>
+
+        <h2 class="text-lg font-semibold mb-4">Function Reference</h2>
+        <div class="overflow-x-auto rounded-lg border border-white/[0.04] mb-8">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>Function</th>
+                <th>Access</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>sweep(token, to)</code></td>
+                <td><span class="badge badge-purple">keeper | self</span></td>
+                <td>Transfer the entire balance of <code>token</code> held by this address to <code>to</code>. Used for same-chain USDC deposits and refunds.</td>
+              </tr>
+              <tr>
+                <td><code>_execute(calls, opData)</code></td>
+                <td><span class="badge badge-purple">keeper | self</span></td>
+                <td>ERC-7821 batch execution override. Accepts an array of <code>(address, value, calldata)</code> tuples and executes them sequentially. The <code>opData</code> parameter must be empty (reserved for future use).</td>
+              </tr>
+              <tr>
+                <td><code>receive()</code></td>
+                <td><span class="badge badge-green">anyone</span></td>
+                <td>Auto-wraps incoming ETH to WETH by calling <code>WETH.deposit{value}()</code>. This ensures native ETH deposits are immediately convertible by the sweeper.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 class="text-lg font-semibold mb-4">Immutable State</h2>
+        <div class="overflow-x-auto rounded-lg border border-white/[0.04] mb-6">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>Variable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>weth</code></td>
+                <td>WETH contract address on this chain. Used by <code>receive()</code> to auto-wrap ETH. On OP Stack L2s (Base, Optimism, Arbitrum): <code>0x4200000000000000000000000000000000000006</code>.</td>
+              </tr>
+              <tr>
+                <td><code>keeper</code></td>
+                <td>The relayer address authorized to call <code>sweep()</code> and <code>execute()</code>. Only this address (or the contract itself via batch self-calls) can move funds.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 class="text-lg font-semibold mb-4">Security Model</h2>
+        <p class="text-text-secondary text-[15px] leading-relaxed">
+          The contract is deliberately minimal (48 lines). Access control restricts all fund-moving operations to the <code>keeper</code> address (the relayer) or <code>address(this)</code> (self-calls within a batch). The <code>opData</code> path is explicitly reverted to prevent unauthorized execution modes. The contract inherits from Solady's <code>ERC7821</code> which provides the gas-optimized batch call execution. Deployed via CREATE3 to the same address on all chains.
+        </p>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- DEPLOYMENTS                                                         -->
+      <!-- ================================================================== -->
+      <section id="deployments" class="doc-section mb-20">
+        <h1 class="text-2xl font-bold tracking-tight mb-3">Deployments</h1>
+        <p class="text-text-secondary text-[15px] leading-relaxed mb-6">
+          DepositoorDelegate is deployed at the same address on all chains via <strong class="text-text-primary">CREATE3</strong> (salt-deterministic deployment). This allows the EIP-7702 authorization to use <code>chainId: 0</code> with a single implementation address.
+        </p>
+
+        <div class="bg-card border border-white/[0.04] rounded-lg p-5 mb-8">
+          <div class="text-sm text-text-secondary mb-2">Contract Address (all chains)</div>
+          <div class="font-mono text-text-primary text-lg tracking-tight break-all select-all">
+            0x33333393A5EdE0c5E257b836034b8ab48078f53c
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-lg border border-white/[0.04]">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>Chain</th>
+                <th>Chain ID</th>
+                <th>Explorer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-text-primary font-medium">Ethereum</td>
+                <td><code>1</code></td>
+                <td><a href="https://etherscan.io/address/0x33333393A5EdE0c5E257b836034b8ab48078f53c" class="text-accent hover:underline font-mono text-xs">etherscan.io</a></td>
+              </tr>
+              <tr>
+                <td class="text-text-primary font-medium">Arbitrum</td>
+                <td><code>42161</code></td>
+                <td><a href="https://arbiscan.io/address/0x33333393A5EdE0c5E257b836034b8ab48078f53c" class="text-accent hover:underline font-mono text-xs">arbiscan.io</a></td>
+              </tr>
+              <tr>
+                <td class="text-text-primary font-medium">Base</td>
+                <td><code>8453</code></td>
+                <td><a href="https://basescan.org/address/0x33333393A5EdE0c5E257b836034b8ab48078f53c" class="text-accent hover:underline font-mono text-xs">basescan.org</a></td>
+              </tr>
+              <tr>
+                <td class="text-text-primary font-medium">Optimism</td>
+                <td><code>10</code></td>
+                <td><a href="https://optimistic.etherscan.io/address/0x33333393A5EdE0c5E257b836034b8ab48078f53c" class="text-accent hover:underline font-mono text-xs">optimistic.etherscan.io</a></td>
+              </tr>
+              <tr>
+                <td class="text-text-primary font-medium">Polygon</td>
+                <td><code>137</code></td>
+                <td><a href="https://polygonscan.com/address/0x33333393A5EdE0c5E257b836034b8ab48078f53c" class="text-accent hover:underline font-mono text-xs">polygonscan.com</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="pt-12 border-t border-white/[0.04] mt-8">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-mono text-text-muted">
+          <span>Built with EIP-7702 and Solady ERC-7821</span>
+          <span>ETHGlobal 2026</span>
+        </div>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- Sidebar active state + smooth scrolling -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const links = document.querySelectorAll('.nav-link');
+      const sections = document.querySelectorAll('.doc-section');
+
+      // Intersection observer for active nav state
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              links.forEach((link) => link.classList.remove('active'));
+              const activeLink = document.querySelector(
+                `.nav-link[href="#${entry.target.id}"]`
+              );
+              if (activeLink) activeLink.classList.add('active');
+            }
+          });
+        },
+        { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+      );
+
+      sections.forEach((section) => observer.observe(section));
+
+      // Smooth scroll on nav click
+      links.forEach((link) => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = document.querySelector(link.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+            history.pushState(null, null, link.getAttribute('href'));
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

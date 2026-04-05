@@ -13,7 +13,7 @@ export default function LandingPage() {
             depositoor
           </a>
           <div className="flex items-center gap-6">
-            <a href="#" className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors">Docs</a>
+            <a href="/docs.html" className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors">Docs</a>
             <a href="https://github.com/kkoshiya/depositoor" className="text-text-secondary hover:text-text-primary transition-colors">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12C2 16.42 4.868 20.166 8.839 21.492C9.339 21.584 9.52 21.276 9.52 21.011C9.52 20.771 9.511 20.148 9.506 19.309C6.725 19.913 6.138 17.969 6.138 17.969C5.683 16.815 5.027 16.508 5.027 16.508C4.12 15.888 5.095 15.9 5.095 15.9C6.098 15.97 6.626 16.93 6.626 16.93C7.518 18.459 8.966 18.016 9.544 17.761C9.635 17.106 9.897 16.663 10.187 16.409C7.967 16.156 5.635 15.297 5.635 11.458C5.635 10.366 6.025 9.471 6.657 8.766C6.554 8.513 6.213 7.498 6.755 6.126C6.755 6.126 7.589 5.859 9.502 7.153C10.294 6.933 11.144 6.823 11.992 6.819C12.84 6.823 13.69 6.933 14.483 7.153C16.395 5.859 17.228 6.126 17.228 6.126C17.771 7.498 17.43 8.513 17.328 8.766C17.961 9.471 18.35 10.366 18.35 11.458C18.35 15.308 16.015 16.153 13.788 16.4C14.15 16.713 14.473 17.333 14.473 18.286C14.473 19.65 14.46 20.75 14.46 21.011C14.46 21.279 14.639 21.59 15.147 21.492C19.115 20.163 21.996 16.418 21.996 12C21.996 6.477 17.523 2 12 2Z" />
